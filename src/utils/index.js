@@ -1,4 +1,3 @@
-export * from './view';
-export * from './utils/constants.js';
-export * from './renders';
-export * from './utils/path.js';
+export * from './constants.js';
+export * from './path.js';
+export * from './utils.js';

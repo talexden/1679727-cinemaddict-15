@@ -1,7 +1,7 @@
-export const createFilmList = () => (
-  `<section class="films-list">
-      <h2 class="films-list__title"></h2>
-      <div class="films-list__container">
-      </div>
-    </section>`
+export const createCatalogListTemplate = (listTitle = '', modifier = '') => (
+  `<section class="films-list ${modifier}">
+    <h2 class="films-list__title">${listTitle}</h2>
+    <div class="films-list__container">
+    </div>
+  </section>`
 );

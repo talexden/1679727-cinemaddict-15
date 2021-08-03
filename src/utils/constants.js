@@ -1,15 +1,7 @@
-const MAIN_LIST_TITLE = 'All movies. Upcoming';
-const MAIN_LIST_SIZE = 5;
-const TOP_LIST_TITLE = 'Top rated';
-const TOP_LIST_SIZE = 2;
-const MOST_COMMENTED_LIST_TITLE = 'Most commented';
-const MOST_COMMENTED_LIST_SIZE = 2;
-
-export {
-  MAIN_LIST_TITLE,
-  MAIN_LIST_SIZE,
-  TOP_LIST_TITLE,
-  TOP_LIST_SIZE,
-  MOST_COMMENTED_LIST_TITLE,
-  MOST_COMMENTED_LIST_SIZE
-};
+export const MAIN_LIST_TITLE = 'All movies. Upcoming';
+export const MAIN_LIST_SIZE = 5;
+export const TOP_LIST_TITLE = 'Top rated';
+export const TOP_LIST_SIZE = 2;
+export const MOST_COMMENTED_LIST_TITLE = 'Most commented';
+export const MOST_COMMENTED_LIST_SIZE = 2;
+export const FILM_DETAILES_COUNT = 7;
