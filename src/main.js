@@ -2,12 +2,16 @@ import {createCatalogTemplate} from './view/catalog.js';
 import {createCatalogListTemplate} from './view/catalog-list.js';
 import {createCardTemplate} from './view/card.js';
 import {createShowMoreButtonTemplate} from './view/show-more-button.js';
+import {createCatalogSortingTemplate} from './view/catalog-sorting.js';
+import {createFooterStatisticTemplate} from './view/footer-statistic.js';
+import {createUserProfile} from './view/userProfile.js';
 import {createPopupTemplate} from './view/popup.js';
 import {createPopupTopContainer} from './view/popup-top-container.js';
-import {createFilmDetalesRow} from './view/film-detales-row.js';
 import {createPopupBottomContainer} from './view/popup-bottom-container.js';
-import {CreateCommetnTemplate} from './view/commetn.js';
-import {render} from './utils.js';
+import {createCommetnTemplate} from './view/commetn.js';
+import {fillArrayBy, getComments, getFilmCard} from './mock/create-mock.js';
+import {getStringMultiply, render} from './utils.js';
+import {getFavoritFilms, getMostCommentedSort, getRatingSort, getWatchedFilms, getWatchlistFilms} from './filters.js';
 
 const MAIN_LIST_TITLE = 'All movies. Upcoming';
 const MAIN_LIST_SIZE = 5;
@@ -15,46 +19,86 @@ const TOP_LIST_TITLE = 'Top rated';
 const TOP_LIST_SIZE = 2;
 const MOST_COMMENTED_LIST_TITLE = 'Most commented';
 const MOST_COMMENTED_LIST_SIZE = 2;
-const FILM_DETAILES_COUNT = 7;
 
-const body = document.querySelector('body');
-const main = body.querySelector('.main');
-const footer = body.querySelector('.footer');
+const films = fillArrayBy(29, getFilmCard);
+
+const filters = document.querySelectorAll('.main-navigation__item span');
+
+filters[0].textContent = getWatchlistFilms(films).length;
+filters[1].textContent = getWatchedFilms(films).length;
+filters[2].textContent = getFavoritFilms(films).length;
 
 
+const header = document.querySelector('.header');
+render(header, createUserProfile(),'beforeend');
+
+const main = document.querySelector('.main');
+render(main, createCatalogSortingTemplate(), 'beforeend');
 render(main, createCatalogTemplate(), 'beforeend');
 
 
-const getMultiplyStrings = (string, number) => {
-  let multiplyStrings = '';
-  for (let i = 0; i < number; i++) {
-    multiplyStrings += string;
-  }
-  return multiplyStrings;
-};
-
-
 const catalog = main.querySelector('.films');
-let catalogList;
 
-const renderCatalogList =(listTitle, listSize, modifier) => {
-  render(catalog, createCatalogListTemplate(listTitle, modifier), 'afterbegin');
-  catalogList = catalog.querySelector('.films-list__container');
-  render(catalogList, getMultiplyStrings(createCardTemplate(), listSize), 'beforeend');
+const getCatalogList = (filmsData, listTitle, listSize, listModifier, listTitleClass) => {
+  const cards = getStringMultiply(listSize, createCardTemplate, filmsData);
+  return createCatalogListTemplate(listTitle, cards,listModifier, listTitleClass);
 };
 
 
-renderCatalogList(MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE,'films-list--extra');
-renderCatalogList(TOP_LIST_TITLE, TOP_LIST_SIZE,'films-list--extra');
-renderCatalogList(MAIN_LIST_TITLE, MAIN_LIST_SIZE);
-render(catalogList, createShowMoreButtonTemplate(), 'beforeend');
+render(catalog, getCatalogList(films, MAIN_LIST_TITLE, MAIN_LIST_SIZE, '', 'visually-hidden'), 'beforeend');
+render(catalog, getCatalogList(getRatingSort(films), TOP_LIST_TITLE, TOP_LIST_SIZE, 'films-list--extra'), 'beforeend');
+render(catalog, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
+
+const filmList = catalog.querySelector('.films-list');
+render(filmList, createShowMoreButtonTemplate(), 'beforeend');
+
+
+let shownFilms = MAIN_LIST_TITLE;
+const getFilmCatalogList = (filmsData, showNumber, idx) => {
+  let string = '';
+  const hiddenFilms = filmsData.length - idx;
+  const counter = hiddenFilms < MAIN_LIST_TITLE ? hiddenFilms : showNumber;
+  for (let i = 0; i < counter; i++) {
+    string += createCardTemplate(filmsData[shownFilms]);
+    shownFilms++;
+  }
+  return string;
+};
+
+
+const filmsListContainer = filmList.querySelector('.films-list__container');
+const showMoreButton = filmList.querySelector('.films-list__show-more');
+showMoreButton.addEventListener('click', () => {
+  const filmsList = getFilmCatalogList(films, MAIN_LIST_TITLE, shownFilms);
+  render (filmsListContainer, filmsList, 'beforeend');
+  if (films.length === shownFilms) {
+    showMoreButton.remove();
+  }
+});
+
+
+const footer = document.querySelector('.footer');
+render(footer, createFooterStatisticTemplate(films.length),'beforeend');
 
 
 render(footer, createPopupTemplate(), 'afterend');
+
 const filmDetailsInner = document.querySelector('.film-details__inner');
-render(filmDetailsInner, createPopupTopContainer(), 'beforeend');
-const filmDetailsTable = filmDetailsInner.querySelector('.film-details__table');
-render(filmDetailsTable, getMultiplyStrings(createFilmDetalesRow(), FILM_DETAILES_COUNT), 'beforeend');
-render(filmDetailsInner, createPopupBottomContainer(), 'beforeend');
+render(filmDetailsInner, createPopupTopContainer(films[0]), 'beforeend');
+render(filmDetailsInner, createPopupBottomContainer(films[0]), 'beforeend');
+
+const body = document.querySelector('body');
+body.classList.add('hide-overflow');
+
+const getPopupComments = (filmComments, comments) => {
+  let popupComments = '';
+  filmComments.forEach((item) => {
+    popupComments += createCommetnTemplate(comments[item]);
+  });
+  return popupComments;
+};
+
 const filmDetailsCommentsList = filmDetailsInner.querySelector('.film-details__comments-list');
-render(filmDetailsCommentsList, getMultiplyStrings(CreateCommetnTemplate(), 1), 'beforeend');
+render(filmDetailsCommentsList, getPopupComments(films[0].comments, getComments()), 'beforeend');
+
+
