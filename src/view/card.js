@@ -22,7 +22,7 @@ export const createCardTemplate = (filmData) => {
       <p class="film-card__info">
         <span class="film-card__year">${dateFullYear}</span>
         <span class="film-card__duration">${duration}</span>
-        <span class="film-card__genre">${genres}</span>
+        <span class="film-card__genre">${genres.join(', ')}</span>
       </p>
       <img src="${poster}" alt="" class="film-card__poster">
       <p class="film-card__description">${getCardDescription()}</p>

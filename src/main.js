@@ -8,7 +8,7 @@ import {createUserProfile} from './view/userProfile.js';
 import {createPopupTemplate} from './view/popup.js';
 import {createPopupTopContainer} from './view/popup-top-container.js';
 import {createPopupBottomContainer} from './view/popup-bottom-container.js';
-import {createCommetnTemplate} from './view/commetn.js';
+import {createCommetnTemplate} from './view/comment.js';
 import {fillArrayBy, getComments, getFilmCard} from './mock/create-mock.js';
 import {getStringMultiply, render} from './utils.js';
 import {getFavoritFilms, getMostCommentedSort, getRatingSort, getWatchedFilms, getWatchlistFilms} from './filters.js';
@@ -20,7 +20,7 @@ const TOP_LIST_SIZE = 2;
 const MOST_COMMENTED_LIST_TITLE = 'Most commented';
 const MOST_COMMENTED_LIST_SIZE = 2;
 
-const films = fillArrayBy(29, getFilmCard);
+const films = fillArrayBy(28, getFilmCard);
 
 const filters = document.querySelectorAll('.main-navigation__item span');
 
@@ -53,11 +53,12 @@ const filmList = catalog.querySelector('.films-list');
 render(filmList, createShowMoreButtonTemplate(), 'beforeend');
 
 
-let shownFilms = MAIN_LIST_TITLE;
+let shownFilms = MAIN_LIST_SIZE;
+
 const getFilmCatalogList = (filmsData, showNumber, idx) => {
   let string = '';
   const hiddenFilms = filmsData.length - idx;
-  const counter = hiddenFilms < MAIN_LIST_TITLE ? hiddenFilms : showNumber;
+  const counter = hiddenFilms < showNumber ? hiddenFilms : showNumber;
   for (let i = 0; i < counter; i++) {
     string += createCardTemplate(filmsData[shownFilms]);
     shownFilms++;
@@ -69,7 +70,7 @@ const getFilmCatalogList = (filmsData, showNumber, idx) => {
 const filmsListContainer = filmList.querySelector('.films-list__container');
 const showMoreButton = filmList.querySelector('.films-list__show-more');
 showMoreButton.addEventListener('click', () => {
-  const filmsList = getFilmCatalogList(films, MAIN_LIST_TITLE, shownFilms);
+  const filmsList = getFilmCatalogList(films, MAIN_LIST_SIZE, shownFilms);
   render (filmsListContainer, filmsList, 'beforeend');
   if (films.length === shownFilms) {
     showMoreButton.remove();
@@ -101,4 +102,11 @@ const getPopupComments = (filmComments, comments) => {
 const filmDetailsCommentsList = filmDetailsInner.querySelector('.film-details__comments-list');
 render(filmDetailsCommentsList, getPopupComments(films[0].comments, getComments()), 'beforeend');
 
+const popup = document.querySelector('.film-details');
+const popupCloseButton = document.querySelector('.film-details__close-btn');
 
+
+popupCloseButton.addEventListener('click', () => {
+  body.classList.remove('hide-overflow');
+  popup.remove();
+});

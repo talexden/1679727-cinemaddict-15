@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 export const createCommetnTemplate = (comments) => {
   const {author, comment, date, emotion} = comments;
