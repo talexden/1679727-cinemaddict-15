@@ -1,4 +1,4 @@
-export const createCatalogListTemplate = (listTitle = '', cards, listModifier = '', listTitleClass = '') => (
+export const catalogListTemplate = (cards, listTitle = '', listModifier = '', listTitleClass = '') => (
   `<section class="films-list ${listModifier}">
     <h2 class="films-list__title ${listTitleClass}">${listTitle}</h2>
     <div class="films-list__container">
