@@ -1,12 +1,3 @@
-export const getStringMultiply = (number, cb, argument) => {
-  let string = '';
-  for (let i = 0; i < number; i++) {
-    string += cb(argument[i]);
-  }
-  return string;
-};
-
-
 export const RenderPosition = {
   AFTERBEGIN: 'afterbegin',
   BEFOREEND: 'beforeend',
