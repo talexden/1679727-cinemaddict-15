@@ -1,7 +1,8 @@
 import {filmDetailsTemplate} from './film-details-template.js';
 import dayjs from 'dayjs';
+import AbstractView from './abstract';
 
-export const  popupFilmDetailsTemplate = (film) => {
+const  popupFilmDetailsTemplate = (film) => {
   const {filmInfo, userDetails} = film;
   const {title, alternativeTitle, totalRating, ageRating, director, writers, actors, release, runtime, genres, poster, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
@@ -59,3 +60,14 @@ export const  popupFilmDetailsTemplate = (film) => {
     </div>`
   );
 };
+
+export default class PopupFilmDetails extends AbstractView {
+  constructor(film) {
+    super();
+    this._film = film;
+  }
+
+  getTemplate() {
+    return  popupFilmDetailsTemplate(this._film);
+  }
+}

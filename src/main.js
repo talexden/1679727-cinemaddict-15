@@ -1,16 +1,16 @@
-import {catalogTemplate} from './view/catalog.js';
+import Catalog from './view/catalog.js';
 import {catalogListTemplate} from './view/catalog-list.js';
 import {cardTemplate} from './view/card.js';
-import {showMoreButtonTemplate} from './view/show-more-button.js';
-import {catalogSortingTemplate} from './view/catalog-sorting.js';
-import {footerStatisticTemplate} from './view/footer-statistic.js';
-import {userProfileTemplate} from './view/user-profile.js';
-import {popupTemplate} from './view/popup.js';
-import {popupFilmDetailsTemplate} from './view/popup-film-details.js';
-import {popupFilmCommentsTemplate} from './view/popup-film-comments.js';
+import ShowMoreButton from './view/show-more-button.js';
+import CatalogSorting from './view/catalog-sorting.js';
+import FooterStatistic from './view/footer-statistic.js';
+import UserProfile from './view/user-profile.js';
+import PopupTemplate from './view/popup.js';
+import PopupFilmDetails from './view/popup-film-details.js';
+import PopupFilmComments from './view/popup-film-comments.js';
 import {commentTemplate} from './view/comment.js';
-import {navigationTemplate} from './view/navigation.js';
-import {getStringMultiply, renderTemplate} from './utils.js';
+import Navigation from './view/navigation.js';
+import {getStringMultiply, renderTemplate, renderElement, RenderPosition} from './utils.js';
 import {getMostCommentedSort, getRatingSort} from './filters.js';
 import {createFilmCards} from './mock/create-film-cards';
 import {getComments} from './mock/create-comments';
@@ -26,15 +26,14 @@ const FILMS_CATALOG_SIZE = 37;
 const films = createFilmCards(FILMS_CATALOG_SIZE);
 
 const main = document.querySelector('.main');
-renderTemplate(main, navigationTemplate(films), 'beforeend');
-
+renderElement(main, new Navigation(films).getElement(), RenderPosition.BEFOREEND);
 
 const header = document.querySelector('.header');
-renderTemplate(header, userProfileTemplate(),'beforeend');
+renderElement(header, new UserProfile().getElement(), RenderPosition.BEFOREEND);
 
 
-renderTemplate(main, catalogSortingTemplate(), 'beforeend');
-renderTemplate(main, catalogTemplate(), 'beforeend');
+renderElement(main, new CatalogSorting().getElement(), RenderPosition.BEFOREEND);
+renderElement(main, new Catalog().getElement(), RenderPosition.BEFOREEND);
 
 
 const catalogFilmsNode = main.querySelector('.films');
@@ -50,7 +49,7 @@ renderTemplate(catalogFilmsNode, getCatalogList(getRatingSort(films), TOP_LIST_T
 renderTemplate(catalogFilmsNode, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
 
 const filmsListNode = catalogFilmsNode.querySelector('.films-list');
-renderTemplate(filmsListNode, showMoreButtonTemplate(), 'beforeend');
+renderElement(filmsListNode, new ShowMoreButton().getElement(), RenderPosition.BEFOREEND);
 
 
 let shownFilms = MAIN_LIST_SIZE;
@@ -79,14 +78,12 @@ showMoreButton.addEventListener('click', () => {
 
 
 const footerNode = document.querySelector('.footer');
-renderTemplate(footerNode, footerStatisticTemplate(films.length),'beforeend');
-
-
-renderTemplate(footerNode, popupTemplate(), 'afterend');
+renderElement(footerNode, new FooterStatistic(films.length).getElement(), RenderPosition.BEFOREEND);
+renderElement(footerNode, new PopupTemplate().getElement(), RenderPosition.AFTEREND);
 
 const filmDetailsInner = document.querySelector('.film-details__inner');
-renderTemplate(filmDetailsInner, popupFilmDetailsTemplate(films[0]), 'beforeend');
-renderTemplate(filmDetailsInner, popupFilmCommentsTemplate(films[0]), 'beforeend');
+renderElement(filmDetailsInner, new PopupFilmDetails(films[0]).getElement(), RenderPosition.BEFOREEND);
+renderElement(filmDetailsInner, new PopupFilmComments(films[0]).getElement(), RenderPosition.BEFOREEND);
 
 const bodyNode = document.querySelector('body');
 bodyNode.classList.add('hide-overflow');
