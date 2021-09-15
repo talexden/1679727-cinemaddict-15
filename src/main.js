@@ -8,7 +8,7 @@ import UserProfile from './view/user-profile.js';
 import PopupTemplate from './view/popup.js';
 import PopupFilmDetails from './view/popup-film-details.js';
 import PopupFilmComments from './view/popup-film-comments.js';
-import {commentTemplate} from './view/comment.js';
+import Comment from './view/comment.js';
 import Navigation from './view/navigation.js';
 import {getStringMultiply, renderTemplate, renderElement, RenderPosition} from './utils.js';
 import {getMostCommentedSort, getRatingSort} from './filters.js';
@@ -38,13 +38,15 @@ renderElement(main, new Catalog().getElement(), RenderPosition.BEFOREEND);
 
 const catalogFilmsNode = main.querySelector('.films');
 
-const getCatalogList = (filmsData, listTitle, listSize, listModifier, listTitleClass) => {
+const getCatalogList = (filmsData, listSize, listTitle, listModifier, listTitleClass) => {
   const cards = getStringMultiply(listSize, cardTemplate, filmsData);
   return catalogListTemplate(cards, listTitle, listModifier, listTitleClass);
 };
 
 
-renderTemplate(catalogFilmsNode, getCatalogList(films, MAIN_LIST_TITLE, MAIN_LIST_SIZE, '', 'visually-hidden'), 'beforeend');
+renderTemplate(catalogFilmsNode, getCatalogList(films, MAIN_LIST_SIZE, MAIN_LIST_TITLE, '', 'visually-hidden'), 'beforeend');
+// renderElement(catalogFilmsNode, new CatalogList(films, MAIN_LIST_SIZE, MAIN_LIST_TITLE, '', 'visually-hidden').getElement(), RenderPosition.BEFOREEND);
+
 renderTemplate(catalogFilmsNode, getCatalogList(getRatingSort(films), TOP_LIST_TITLE, TOP_LIST_SIZE, 'films-list--extra'), 'beforeend');
 renderTemplate(catalogFilmsNode, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
 
@@ -68,6 +70,7 @@ const getFilmCatalogList = (filmsData, showNumber, idx) => {
 
 const filmsListContainer = filmsListNode.querySelector('.films-list__container');
 const showMoreButton = filmsListNode.querySelector('.films-list__show-more');
+
 showMoreButton.addEventListener('click', () => {
   const filmsList = getFilmCatalogList(films, MAIN_LIST_SIZE, shownFilms);
   renderTemplate(filmsListContainer, filmsList, 'beforeend');
@@ -89,16 +92,16 @@ const bodyNode = document.querySelector('body');
 bodyNode.classList.add('hide-overflow');
 
 
-const renderPopupComments = (container, filmCommentIds, place) => {
+const renderPopupComments = (container, filmCommentIds) => {
   const comments = getComments();
   filmCommentIds.forEach((commentId) => {
-    renderTemplate(container, commentTemplate(comments[commentId]), place);
+    renderElement(container, new Comment(comments[commentId]).getElement(), RenderPosition.BEFOREEND);
   });
 };
 
 
 const filmDetailsCommentsListNode = filmDetailsInner.querySelector('.film-details__comments-list');
-renderPopupComments(filmDetailsCommentsListNode, films[0].comments, 'beforeend');
+renderPopupComments(filmDetailsCommentsListNode, films[0].comments);
 
 const popupNode = document.querySelector('.film-details');
 const popupCloseButton = document.querySelector('.film-details__close-btn');

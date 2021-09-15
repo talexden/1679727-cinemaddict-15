@@ -1,6 +1,6 @@
 import {filmDetailsTemplate} from './film-details-template.js';
 import dayjs from 'dayjs';
-import AbstractView from './abstract';
+import AbstractView from './abstract.js';
 
 const  popupFilmDetailsTemplate = (film) => {
   const {filmInfo, userDetails} = film;
