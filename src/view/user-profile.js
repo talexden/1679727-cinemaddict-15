@@ -1,4 +1,4 @@
-export const createUserProfile = (name = 'access as a Guest', avatar = '#') => {
+export const userProfileTemplate = (name = 'access as a Guest', avatar = '#') => {
   const size = avatar === '#' ? 0 : 35;
 
   return (

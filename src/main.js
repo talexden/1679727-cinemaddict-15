@@ -1,17 +1,19 @@
-import {createCatalogTemplate} from './view/catalog.js';
-import {createCatalogListTemplate} from './view/catalog-list.js';
-import {createCardTemplate} from './view/card.js';
-import {createShowMoreButtonTemplate} from './view/show-more-button.js';
-import {createCatalogSortingTemplate} from './view/catalog-sorting.js';
-import {createFooterStatisticTemplate} from './view/footer-statistic.js';
-import {createUserProfile} from './view/userProfile.js';
-import {createPopupTemplate} from './view/popup.js';
-import {createPopupTopContainer} from './view/popup-top-container.js';
-import {createPopupBottomContainer} from './view/popup-bottom-container.js';
-import {createCommetnTemplate} from './view/comment.js';
-import {fillArrayBy, getComments, getFilmCard} from './mock/create-mock.js';
+import {catalogTemplate} from './view/catalog.js';
+import {catalogListTemplate} from './view/catalog-list.js';
+import {cardTemplate} from './view/card.js';
+import {showMoreButtonTemplate} from './view/show-more-button.js';
+import {catalogSortingTemplate} from './view/catalog-sorting.js';
+import {footerStatisticTemplate} from './view/footer-statistic.js';
+import {userProfileTemplate} from './view/user-profile.js';
+import {popupTemplate} from './view/popup.js';
+import {popupFilmDetailsTemplate} from './view/popup-film-details.js';
+import {popupFilmCommentsTemplate} from './view/popup-film-comments.js';
+import {commentTemplate} from './view/comment.js';
+import {navigationTemplate} from './view/navigation.js';
 import {getStringMultiply, render} from './utils.js';
-import {getFavoritFilms, getMostCommentedSort, getRatingSort, getWatchedFilms, getWatchlistFilms} from './filters.js';
+import {getMostCommentedSort, getRatingSort} from './filters.js';
+import {createFilmCards} from './mock/create-film-cards';
+import {getComments} from './mock/create-comments';
 
 const MAIN_LIST_TITLE = 'All movies. Upcoming';
 const MAIN_LIST_SIZE = 5;
@@ -19,38 +21,36 @@ const TOP_LIST_TITLE = 'Top rated';
 const TOP_LIST_SIZE = 2;
 const MOST_COMMENTED_LIST_TITLE = 'Most commented';
 const MOST_COMMENTED_LIST_SIZE = 2;
+const FILMS_CATALOG_SIZE = 37;
 
-const films = fillArrayBy(28, getFilmCard);
+const films = createFilmCards(FILMS_CATALOG_SIZE);
 
-const filters = document.querySelectorAll('.main-navigation__item span');
-
-filters[0].textContent = getWatchlistFilms(films).length;
-filters[1].textContent = getWatchedFilms(films).length;
-filters[2].textContent = getFavoritFilms(films).length;
+const main = document.querySelector('.main');
+render(main, navigationTemplate(films), 'beforeend');
 
 
 const header = document.querySelector('.header');
-render(header, createUserProfile(),'beforeend');
-
-const main = document.querySelector('.main');
-render(main, createCatalogSortingTemplate(), 'beforeend');
-render(main, createCatalogTemplate(), 'beforeend');
+render(header, userProfileTemplate(),'beforeend');
 
 
-const catalog = main.querySelector('.films');
+render(main, catalogSortingTemplate(), 'beforeend');
+render(main, catalogTemplate(), 'beforeend');
+
+
+const catalogFilmsNode = main.querySelector('.films');
 
 const getCatalogList = (filmsData, listTitle, listSize, listModifier, listTitleClass) => {
-  const cards = getStringMultiply(listSize, createCardTemplate, filmsData);
-  return createCatalogListTemplate(listTitle, cards,listModifier, listTitleClass);
+  const cards = getStringMultiply(listSize, cardTemplate, filmsData);
+  return catalogListTemplate(cards, listTitle, listModifier, listTitleClass);
 };
 
 
-render(catalog, getCatalogList(films, MAIN_LIST_TITLE, MAIN_LIST_SIZE, '', 'visually-hidden'), 'beforeend');
-render(catalog, getCatalogList(getRatingSort(films), TOP_LIST_TITLE, TOP_LIST_SIZE, 'films-list--extra'), 'beforeend');
-render(catalog, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
+render(catalogFilmsNode, getCatalogList(films, MAIN_LIST_TITLE, MAIN_LIST_SIZE, '', 'visually-hidden'), 'beforeend');
+render(catalogFilmsNode, getCatalogList(getRatingSort(films), TOP_LIST_TITLE, TOP_LIST_SIZE, 'films-list--extra'), 'beforeend');
+render(catalogFilmsNode, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
 
-const filmList = catalog.querySelector('.films-list');
-render(filmList, createShowMoreButtonTemplate(), 'beforeend');
+const filmsListNode = catalogFilmsNode.querySelector('.films-list');
+render(filmsListNode, showMoreButtonTemplate(), 'beforeend');
 
 
 let shownFilms = MAIN_LIST_SIZE;
@@ -60,15 +60,15 @@ const getFilmCatalogList = (filmsData, showNumber, idx) => {
   const hiddenFilms = filmsData.length - idx;
   const counter = hiddenFilms < showNumber ? hiddenFilms : showNumber;
   for (let i = 0; i < counter; i++) {
-    string += createCardTemplate(filmsData[shownFilms]);
+    string += cardTemplate(filmsData[shownFilms]);
     shownFilms++;
   }
   return string;
 };
 
 
-const filmsListContainer = filmList.querySelector('.films-list__container');
-const showMoreButton = filmList.querySelector('.films-list__show-more');
+const filmsListContainer = filmsListNode.querySelector('.films-list__container');
+const showMoreButton = filmsListNode.querySelector('.films-list__show-more');
 showMoreButton.addEventListener('click', () => {
   const filmsList = getFilmCatalogList(films, MAIN_LIST_SIZE, shownFilms);
   render (filmsListContainer, filmsList, 'beforeend');
@@ -78,35 +78,36 @@ showMoreButton.addEventListener('click', () => {
 });
 
 
-const footer = document.querySelector('.footer');
-render(footer, createFooterStatisticTemplate(films.length),'beforeend');
+const footerNode = document.querySelector('.footer');
+render(footerNode, footerStatisticTemplate(films.length),'beforeend');
 
 
-render(footer, createPopupTemplate(), 'afterend');
+render(footerNode, popupTemplate(), 'afterend');
 
 const filmDetailsInner = document.querySelector('.film-details__inner');
-render(filmDetailsInner, createPopupTopContainer(films[0]), 'beforeend');
-render(filmDetailsInner, createPopupBottomContainer(films[0]), 'beforeend');
+render(filmDetailsInner, popupFilmDetailsTemplate(films[0]), 'beforeend');
+render(filmDetailsInner, popupFilmCommentsTemplate(films[0]), 'beforeend');
 
-const body = document.querySelector('body');
-body.classList.add('hide-overflow');
+const bodyNode = document.querySelector('body');
+bodyNode.classList.add('hide-overflow');
 
-const getPopupComments = (filmComments, comments) => {
-  let popupComments = '';
-  filmComments.forEach((item) => {
-    popupComments += createCommetnTemplate(comments[item]);
+
+const renderPopupComments = (container, filmCommentIds, place) => {
+  const comments = getComments();
+  filmCommentIds.forEach((commentId) => {
+    render(container, commentTemplate(comments[commentId]), place);
   });
-  return popupComments;
 };
 
-const filmDetailsCommentsList = filmDetailsInner.querySelector('.film-details__comments-list');
-render(filmDetailsCommentsList, getPopupComments(films[0].comments, getComments()), 'beforeend');
 
-const popup = document.querySelector('.film-details');
+const filmDetailsCommentsListNode = filmDetailsInner.querySelector('.film-details__comments-list');
+renderPopupComments(filmDetailsCommentsListNode, films[0].comments, 'beforeend');
+
+const popupNode = document.querySelector('.film-details');
 const popupCloseButton = document.querySelector('.film-details__close-btn');
 
 
 popupCloseButton.addEventListener('click', () => {
-  body.classList.remove('hide-overflow');
-  popup.remove();
+  bodyNode.classList.remove('hide-overflow');
+  popupNode.remove();
 });

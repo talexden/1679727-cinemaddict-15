@@ -1,1 +1,1 @@
-export  const createCatalogTemplate = () => '<section class="films"></section>';
+export  const catalogTemplate = () => '<section class="films"></section>';

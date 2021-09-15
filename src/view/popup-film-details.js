@@ -1,7 +1,7 @@
-import {createFilmDetalesRow} from './film-detales-row.js';
+import {filmDetailsTemplate} from './film-details-template.js';
 import dayjs from 'dayjs';
 
-export const  createPopupTopContainer = (film) => {
+export const  popupFilmDetailsTemplate = (film) => {
   const {filmInfo, userDetails} = film;
   const {title, alternativeTitle, totalRating, ageRating, director, writers, actors, release, runtime, genres, poster, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
@@ -36,13 +36,13 @@ export const  createPopupTopContainer = (film) => {
           </div>
 
           <table class="film-details__table">
-            ${createFilmDetalesRow('Director', director)}
-            ${createFilmDetalesRow(popupWriters, writers.join(', '))}
-            ${createFilmDetalesRow('Actors', actors.join(', '))}
-            ${createFilmDetalesRow('Release Date', releaseDate)}
-            ${createFilmDetalesRow('Runtime', duration)}
-            ${createFilmDetalesRow('Country', release.country)}
-            ${createFilmDetalesRow(popupGenres, genres.join(', '))}
+            ${filmDetailsTemplate('Director', director)}
+            ${filmDetailsTemplate(popupWriters, writers.join(', '))}
+            ${filmDetailsTemplate('Actors', actors.join(', '))}
+            ${filmDetailsTemplate('Release Date', releaseDate)}
+            ${filmDetailsTemplate('Runtime', duration)}
+            ${filmDetailsTemplate('Country', release.country)}
+            ${filmDetailsTemplate(popupGenres, genres.join(', '))}
           </table>
 
           <p class="film-details__film-description">

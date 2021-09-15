@@ -1,4 +1,4 @@
-export const createPopupBottomContainer = (filmComments) => {
+export const popupFilmCommentsTemplate = (filmComments) => {
   const commentsCount = filmComments.comments.length;
 
   return (

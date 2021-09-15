@@ -1,4 +1,4 @@
-export const loremDescription = [
+export const DESCRIPTION = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget.',
   'Fusce tristique felis at fermentum pharetra.',
@@ -11,7 +11,7 @@ export const loremDescription = [
   'In rutrum ac purus sit amet tempus.',
 ];
 
-export const loremCommentsPhrase = [
+export const COMMENTS_PHRASE = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
   'Sed hendrerit quam id quam accumsan gravida.',
   'Praesent faucibus sapien dictum odio auctor cursus.',
@@ -31,7 +31,7 @@ export const loremCommentsPhrase = [
 ];
 
 
-export const loremFilmTitles = [
+export const FILM_TITLES = [
   'Lores gypsum dolour sit meat',
   'It mollies nostrum',
   'Er nostrum voluptuary is',
@@ -61,7 +61,7 @@ export const loremFilmTitles = [
   'Pro mutate passim ex',
 ];
 
-export const loremSurnames = [
+export const SURNAMES = [
   'Stone',
   'Priya',
   'Wong',
@@ -84,7 +84,7 @@ export const loremSurnames = [
   'Ellawala',
 ];
 
-export const loremNames = [
+export const NAMES = [
   'John',
   'Ponnappa',
   'Mia',
@@ -107,7 +107,7 @@ export const loremNames = [
   'Ruveni',
 ];
 
-export const loremCountries = [
+export const COUNTRIES = [
   'Albania',
   'Belarus',
   'Chile',
@@ -134,7 +134,7 @@ export const loremCountries = [
 ];
 
 
-export const loremGenres = [
+export const GENRES = [
   'Action',
   'Cartoon',
   'Comedy',
@@ -153,11 +153,11 @@ export const loremGenres = [
   'Western',
 ];
 
-export const loremAge = [6, 12, 16, 18];
+export const AGE = [6, 12, 16, 18];
 
-export const emojis = ['angry', 'puke', 'sleeping', 'smile'];
+export const EMOJIS = ['angry', 'puke', 'sleeping', 'smile'];
 
-export const posters = [
+export const POSTERS = [
   'santa-claus-conquers-the-martians.jpg',
   'made-for-each-other.png',
   'the-dance-of-life.jpg',
