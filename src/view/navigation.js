@@ -1,4 +1,6 @@
-export const navigationTemplate = (films) => {
+import AbstractView from './abstract.js';
+
+const navigationTemplate = (films) => {
   let [watchlistCount, historyCount, favoritesCount] = [0, 0, 0];
 
   for (const film of films) {
@@ -19,3 +21,15 @@ export const navigationTemplate = (films) => {
   </nav>`
   );
 };
+
+
+export default class Navigation extends AbstractView {
+  constructor(films) {
+    super();
+    this._films = films;
+  }
+
+  getTemplate() {
+    return navigationTemplate(this._films);
+  }
+}

@@ -1,4 +1,6 @@
-export const popupFilmCommentsTemplate = (filmComments) => {
+import AbstractView from './abstract.js';
+
+const popupFilmCommentsTemplate = (filmComments) => {
   const commentsCount = filmComments.comments.length;
 
   return (
@@ -43,3 +45,15 @@ export const popupFilmCommentsTemplate = (filmComments) => {
     </div>`
   );
 };
+
+
+export default class PopupFilmComments extends AbstractView {
+  constructor(filmComments) {
+    super();
+    this._filmComments = filmComments;
+  }
+
+  getTemplate() {
+    return popupFilmCommentsTemplate(this._filmComments);
+  }
+}

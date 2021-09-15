@@ -1,4 +1,6 @@
-export const userProfileTemplate = (name = 'access as a Guest', avatar = '#') => {
+import AbstractView from './abstract.js';
+
+const userProfileTemplate = (name = 'access as a Guest', avatar = '#') => {
   const size = avatar === '#' ? 0 : 35;
 
   return (
@@ -8,3 +10,16 @@ export const userProfileTemplate = (name = 'access as a Guest', avatar = '#') =>
   </section>`
   );
 };
+
+
+export default class UserProfile extends AbstractView {
+  constructor(name, avatar) {
+    super();
+    this._name = name;
+    this._avatar = avatar;
+  }
+
+  getTemplate() {
+    return userProfileTemplate(this._name, this._avatar);
+  }
+}

@@ -1,7 +1,9 @@
+import AbstractView from './abstract.js';
+
 const MAX_DESCRIPTION_LENGTH = 140;
 
 
-export const cardTemplate = (filmData) => {
+const cardTemplate = (filmData) => {
   const {comments, filmInfo, userDetails} = filmData;
   const {title, totalRating, release, runtime, genres, poster, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
@@ -38,3 +40,15 @@ export const cardTemplate = (filmData) => {
     </article>`
   );
 };
+
+
+export default class Cards extends AbstractView {
+  constructor(filmsData) {
+    super();
+    this._filmData = filmsData;
+  }
+
+  getTemplate() {
+    return cardTemplate(this._filmData);
+  }
+}

@@ -76,5 +76,5 @@ const getFilmCard = () => {
 };
 
 
-const createFilmCards = (arrayLength) => new Array(arrayLength).fill({}).map(getFilmCard);
+const createFilmCards = (filmsCount) => new Array(filmsCount).fill({}).map(getFilmCard);
 export {createFilmCards};
