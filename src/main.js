@@ -10,7 +10,7 @@ import {popupFilmDetailsTemplate} from './view/popup-film-details.js';
 import {popupFilmCommentsTemplate} from './view/popup-film-comments.js';
 import {commentTemplate} from './view/comment.js';
 import {navigationTemplate} from './view/navigation.js';
-import {getStringMultiply, render} from './utils.js';
+import {getStringMultiply, renderTemplate} from './utils.js';
 import {getMostCommentedSort, getRatingSort} from './filters.js';
 import {createFilmCards} from './mock/create-film-cards';
 import {getComments} from './mock/create-comments';
@@ -26,15 +26,15 @@ const FILMS_CATALOG_SIZE = 37;
 const films = createFilmCards(FILMS_CATALOG_SIZE);
 
 const main = document.querySelector('.main');
-render(main, navigationTemplate(films), 'beforeend');
+renderTemplate(main, navigationTemplate(films), 'beforeend');
 
 
 const header = document.querySelector('.header');
-render(header, userProfileTemplate(),'beforeend');
+renderTemplate(header, userProfileTemplate(),'beforeend');
 
 
-render(main, catalogSortingTemplate(), 'beforeend');
-render(main, catalogTemplate(), 'beforeend');
+renderTemplate(main, catalogSortingTemplate(), 'beforeend');
+renderTemplate(main, catalogTemplate(), 'beforeend');
 
 
 const catalogFilmsNode = main.querySelector('.films');
@@ -45,12 +45,12 @@ const getCatalogList = (filmsData, listTitle, listSize, listModifier, listTitleC
 };
 
 
-render(catalogFilmsNode, getCatalogList(films, MAIN_LIST_TITLE, MAIN_LIST_SIZE, '', 'visually-hidden'), 'beforeend');
-render(catalogFilmsNode, getCatalogList(getRatingSort(films), TOP_LIST_TITLE, TOP_LIST_SIZE, 'films-list--extra'), 'beforeend');
-render(catalogFilmsNode, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
+renderTemplate(catalogFilmsNode, getCatalogList(films, MAIN_LIST_TITLE, MAIN_LIST_SIZE, '', 'visually-hidden'), 'beforeend');
+renderTemplate(catalogFilmsNode, getCatalogList(getRatingSort(films), TOP_LIST_TITLE, TOP_LIST_SIZE, 'films-list--extra'), 'beforeend');
+renderTemplate(catalogFilmsNode, getCatalogList(getMostCommentedSort(films), MOST_COMMENTED_LIST_TITLE, MOST_COMMENTED_LIST_SIZE, 'films-list--extra'), 'beforeend');
 
 const filmsListNode = catalogFilmsNode.querySelector('.films-list');
-render(filmsListNode, showMoreButtonTemplate(), 'beforeend');
+renderTemplate(filmsListNode, showMoreButtonTemplate(), 'beforeend');
 
 
 let shownFilms = MAIN_LIST_SIZE;
@@ -71,7 +71,7 @@ const filmsListContainer = filmsListNode.querySelector('.films-list__container')
 const showMoreButton = filmsListNode.querySelector('.films-list__show-more');
 showMoreButton.addEventListener('click', () => {
   const filmsList = getFilmCatalogList(films, MAIN_LIST_SIZE, shownFilms);
-  render (filmsListContainer, filmsList, 'beforeend');
+  renderTemplate(filmsListContainer, filmsList, 'beforeend');
   if (films.length === shownFilms) {
     showMoreButton.remove();
   }
@@ -79,14 +79,14 @@ showMoreButton.addEventListener('click', () => {
 
 
 const footerNode = document.querySelector('.footer');
-render(footerNode, footerStatisticTemplate(films.length),'beforeend');
+renderTemplate(footerNode, footerStatisticTemplate(films.length),'beforeend');
 
 
-render(footerNode, popupTemplate(), 'afterend');
+renderTemplate(footerNode, popupTemplate(), 'afterend');
 
 const filmDetailsInner = document.querySelector('.film-details__inner');
-render(filmDetailsInner, popupFilmDetailsTemplate(films[0]), 'beforeend');
-render(filmDetailsInner, popupFilmCommentsTemplate(films[0]), 'beforeend');
+renderTemplate(filmDetailsInner, popupFilmDetailsTemplate(films[0]), 'beforeend');
+renderTemplate(filmDetailsInner, popupFilmCommentsTemplate(films[0]), 'beforeend');
 
 const bodyNode = document.querySelector('body');
 bodyNode.classList.add('hide-overflow');
@@ -95,7 +95,7 @@ bodyNode.classList.add('hide-overflow');
 const renderPopupComments = (container, filmCommentIds, place) => {
   const comments = getComments();
   filmCommentIds.forEach((commentId) => {
-    render(container, commentTemplate(comments[commentId]), place);
+    renderTemplate(container, commentTemplate(comments[commentId]), place);
   });
 };
 
