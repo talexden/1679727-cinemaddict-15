@@ -3,7 +3,7 @@ import AbstractView from './abstract.js';
 const MAX_DESCRIPTION_LENGTH = 140;
 
 
-const cardTemplate = (filmData) => {
+const cardTemplate = (filmData, cardIdx) => {
   const {comments, filmInfo, userDetails} = filmData;
   const {title, totalRating, release, runtime, genres, poster, description} = filmInfo;
   const {watchlist, alreadyWatched, favorite} = userDetails;
@@ -21,7 +21,7 @@ const cardTemplate = (filmData) => {
   const getButtonClass = (isActive) => isActive ? 'film-card__controls-item--active ': '';
 
   return (
-    `<article class="film-card">
+    `<article class="film-card" film-id="${cardIdx}">
       <h3 class="film-card__title">${title}</h3>
       <p class="film-card__rating">${totalRating}</p>
       <p class="film-card__info">
@@ -43,12 +43,13 @@ const cardTemplate = (filmData) => {
 
 
 export default class Cards extends AbstractView {
-  constructor(filmsData) {
+  constructor(filmsData, idx) {
     super();
     this._filmData = filmsData;
+    this._idx = idx;
   }
 
   getTemplate() {
-    return cardTemplate(this._filmData);
+    return cardTemplate(this._filmData, this._idx);
   }
 }
