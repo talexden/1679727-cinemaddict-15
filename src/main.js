@@ -15,13 +15,14 @@ import {getMostCommentedSort, getRatingSort} from './filters.js';
 import {createFilmCards} from './mock/create-film-cards';
 import {getComments} from './mock/create-comments';
 
-const MAIN_LIST_TITLE = 'All movies. Upcoming';
-const MAIN_LIST_TITLE_NO_MOVIES = 'There are no movies in our database';
-const MAIN_LIST_SIZE = 5;
-const TOP_LIST_TITLE = 'Top rated';
-const MOST_COMMENTED_LIST_TITLE = 'Most commented';
-const EXTRA_LIST_SIZE = 2;
-const FILMS_CATALOG_SIZE = 5;
+export const MAIN_LIST_TITLE = 'All movies. Upcoming';
+export const MAIN_LIST_TITLE_NO_MOVIES = 'There are no movies in our database';
+export const MAIN_LIST_SIZE = 5;
+export const TOP_LIST_TITLE = 'Top rated';
+export const MOST_COMMENTED_LIST_TITLE = 'Most commented';
+export const EXTRA_LIST_SIZE = 2;
+export const FILMS_CATALOG_SIZE = 8;
+export const SHOW_CARDS_COUNT = 5;
 
 const bodyNode = document.querySelector('body');
 const mainNode = bodyNode.querySelector('.main');
@@ -61,12 +62,12 @@ let mainListTitle = MAIN_LIST_TITLE_NO_MOVIES;
 let mainListClass = '';
 
 if (filmsLength > 0) {
-  render(catalogFilmsNode, new CatalogList(MOST_COMMENTED_LIST_TITLE, 'films-list--extra', 'unidden').getElement(), RenderPosition.AFTERBEGIN);
+  render(catalogFilmsNode, new CatalogList(MOST_COMMENTED_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
   catalogFilmsContainerNode = catalogFilmsNode.querySelector('.films-list .films-list__container');
   const renderMostListCard = renderCards(catalogFilmsContainerNode, mostCommentedFilms, EXTRA_LIST_SIZE);
   renderMostListCard();
 
-  render(catalogFilmsNode, new CatalogList(TOP_LIST_TITLE, 'films-list--extra', 'unidden').getElement(), RenderPosition.AFTERBEGIN);
+  render(catalogFilmsNode, new CatalogList(TOP_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
   catalogFilmsContainerNode = catalogFilmsNode.querySelector('.films-list .films-list__container');
   const renderTopListCard = renderCards(catalogFilmsContainerNode, ratingFilms, EXTRA_LIST_SIZE);
   renderTopListCard();
@@ -132,7 +133,7 @@ const renderPopup = (filmData) => {
 
 
   const filmDetailsCommentsListNode = filmDetailsInnerNode.querySelector('.film-details__comments-list');
-  renderPopupComments(filmDetailsCommentsListNode, films[0].comments);
+  renderPopupComments(filmDetailsCommentsListNode, filmData.comments);
 
   const popupCloseButton = document.querySelector('.film-details__close-btn');
 
