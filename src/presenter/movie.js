@@ -44,10 +44,13 @@ export default class Movie {
     this._onCardClickEvent = this._onCardClickEvent.bind(this);
     this._closePopup = this._closePopup.bind(this);
     this._onEscPopup = this._onEscPopup.bind(this);
+    this._onPopupWatchlistButton = this._onPopupWatchlistButton.bind(this);
+    this._onPopupWatchedButton = this._onPopupWatchedButton.bind(this);
+    this._onPopupFavoriteButton = this._onPopupFavoriteButton.bind(this);
   }
 
   init(films, comments) {
-    this._films = films;
+    this._currentFilms = [...films];
     this._comments = comments;
     this._getSortedFilms();
     this._renderMovie();
@@ -61,7 +64,7 @@ export default class Movie {
     let mainListClass = '';
 
 
-    if (this._films.length > 0) {
+    if (this._currentFilms.length > 0) {
       render(this._catalogFilmsNode, new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
       catalogFilmsContainerNode = this._catalogFilmsNode.querySelector('.films-list .films-list__container');
       const renderMostListCard = this._renderCards(catalogFilmsContainerNode, this._mostCommentedFilms, EXTRA_LIST_SIZE);
@@ -79,13 +82,13 @@ export default class Movie {
 
     render(this._catalogFilmsNode, new CatalogListView(mainListTitle, '', mainListClass).getElement(), RenderPosition.AFTERBEGIN);
     catalogFilmsContainerNode = this._catalogFilmsNode.querySelector('.films-list .films-list__container');
-    this._renderMainListCard = this._renderCards(catalogFilmsContainerNode, this._films, MAIN_LIST_SIZE);
+    this._renderMainListCard = this._renderCards(catalogFilmsContainerNode, this._currentFilms, MAIN_LIST_SIZE);
     this._renderMainListCard();
   }
 
   _getSortedFilms() {
-    this._ratingFilms = getRatingSort(this._films);
-    this._mostCommentedFilms = getMostCommentedSort(this._films);
+    this._ratingFilms = getRatingSort(this._currentFilms);
+    this._mostCommentedFilms = getMostCommentedSort(this._currentFilms);
   }
 
   _renderFilmsCatalogList(listTitle, listModifier, listTitleClass) {
@@ -106,7 +109,7 @@ export default class Movie {
   }
 
   _renderShowMorButton() {
-    if (this._films.length > 5) {
+    if (this._currentFilms.length > 5) {
       const filmsListNode = this._catalogFilmsNode.querySelector('.films-list');
       render(filmsListNode, this._showMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
 
@@ -114,7 +117,7 @@ export default class Movie {
 
       showMoreButtonNode.addEventListener('click', () => {
         const shownFilmsIdx = this._renderMainListCard();
-        if (this._films.length === shownFilmsIdx) {
+        if (this._currentFilms.length === shownFilmsIdx) {
           showMoreButtonNode.remove();
         }
       });
@@ -154,7 +157,7 @@ export default class Movie {
     const filmIdx = target.parentElement.getAttribute('film-id');
     switch (true) {
       case this._isTrueFilmList(target, MAIN_LIST_TITLE):
-        this._renderPopup(this._films[filmIdx]);
+        this._renderPopup(this._currentFilms[filmIdx]);
         break;
       case this._isTrueFilmList(target, TOP_LIST_TITLE):
         this._renderPopup(this._ratingFilms[filmIdx]);
@@ -195,9 +198,38 @@ export default class Movie {
     popupCloseButton.addEventListener('click', this._closePopup);
 
     this._bodyNode.classList.add('hide-overflow');
-
+    window.removeEventListener('click', this._onCardClickEvent);
     window.addEventListener('keydown', this._onEscPopup);
+    const popupWatchlistButton = filmDetailsInnerNode.querySelector('.film-details__control-button--watchlist');
+    const popupWatchedButton = filmDetailsInnerNode.querySelector('.film-details__control-button--watched');
+    const popupFavoriteButton = filmDetailsInnerNode.querySelector('.film-details__control-button--favorite');
+    popupWatchlistButton.addEventListener('click', this._onPopupWatchlistButton(filmData));
+    popupWatchedButton.addEventListener('click', this._onPopupWatchedButton(filmData));
+    popupFavoriteButton.addEventListener('click', this._onPopupFavoriteButton(filmData));
   }
 
+  _onPopupWatchlistButton() {
+
+  }
+
+  _onPopupWatchedButton() {
+
+  }
+
+  _onPopupFavoriteButton() {
+
+  }
+
+  _changeAddToWatchlist(Idx) {
+    this._currentFilms[Idx].userDetails.watchlist = !this._currentFilms[Idx].userDetails.watchlist;
+  }
+
+  _changeAlreadyWatched(Idx) {
+    this._currentFilms[Idx].userDetails.alreadyWatched = !this._currentFilms[Idx].userDetails.alreadyWatched;
+  }
+
+  _changeAddToFavorite(Idx) {
+    this._currentFilms[Idx].userDetails.favorite = !this._currentFilms[Idx].userDetails.favorite;
+  }
 }
 
