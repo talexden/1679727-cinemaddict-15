@@ -163,6 +163,7 @@ export default class Movie {
   _closePopup() {
     this._bodyNode.removeChild(this._bodyNode.querySelector('.film-details'));
     this._bodyNode.classList.remove('hide-overflow');
+    window.addEventListener('click', this._onCardClickEvent);
   }
 
   _onEscPopup(evt) {
