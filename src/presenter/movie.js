@@ -1,7 +1,4 @@
-import NavigationView from '../view/navigation';
-import UserProfileView from '../view/user-profile';
-import CatalogSortingView from '../view/catalog-sorting';
-import CatalogView from '../view/catalog';
+
 import CardsView from '../view/card';
 import CatalogListView from '../view/catalog-list';
 import ShowMoreButtonView from '../view/show-more-button';
@@ -24,10 +21,6 @@ const EXTRA_LIST_SIZE = 2;
 
 export default class Movie {
   constructor(bodyNode, catalogFilmsNode) {
-    this._navigationComponent = new NavigationView();
-    this._userproFileComponent = new UserProfileView();
-    this._catalogSortingComponent = new CatalogSortingView();
-    this._catalogComponent = new CatalogView();
     this._showMoreButtonComponent = new ShowMoreButtonView();
     this._footerStatisticComponent = new FooterStatisticView();
     this._popupFilmDetailsComponent = new PopupFilmDetailsView();
@@ -35,12 +28,14 @@ export default class Movie {
 
     this._ratingFilms = null;
     this._mostCommentedFilms = null;
+    this._showMoreButtonNode = null;
 
     this._bodyNode = bodyNode;
     this._catalogFilmsNode = catalogFilmsNode;
 
     this._renderMainListCard = null;
 
+    this._handleShowMorButton = this._handleShowMorButton.bind(this);
     this._onCardClickEvent = this._onCardClickEvent.bind(this);
     this._closePopup = this._closePopup.bind(this);
     this._onEscPopup = this._onEscPopup.bind(this);
@@ -54,15 +49,12 @@ export default class Movie {
     this._comments = comments;
     this._getSortedFilms();
     this._renderMovie();
-    this._renderShowMorButton();
-    this._handleOpenPopup();
   }
 
   _renderMovie() {
     let catalogFilmsContainerNode = '';
     let mainListTitle = MAIN_LIST_TITLE_NO_MOVIES;
     let mainListClass = '';
-
 
     if (this._currentFilms.length > 0) {
       render(this._catalogFilmsNode, new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
@@ -79,20 +71,21 @@ export default class Movie {
       mainListClass = 'visually-hidden';
     }
 
-
     render(this._catalogFilmsNode, new CatalogListView(mainListTitle, '', mainListClass).getElement(), RenderPosition.AFTERBEGIN);
     catalogFilmsContainerNode = this._catalogFilmsNode.querySelector('.films-list .films-list__container');
     this._renderMainListCard = this._renderCards(catalogFilmsContainerNode, this._currentFilms, MAIN_LIST_SIZE);
     this._renderMainListCard();
+
+    if (this._currentFilms.length > 5) {
+      this._renderShowMorButton();
+    }
+
+    window.addEventListener('click', this._onCardClickEvent);
   }
 
   _getSortedFilms() {
     this._ratingFilms = getRatingSort(this._currentFilms);
     this._mostCommentedFilms = getMostCommentedSort(this._currentFilms);
-  }
-
-  _renderFilmsCatalogList(listTitle, listModifier, listTitleClass) {
-    render(this._place, this._catalogListComponent(listTitle, listModifier, listTitleClass).getElement(), RenderPosition.AFTERBEGIN);
   }
 
   _renderCards(place, filmsData, cardsCount) {
@@ -108,20 +101,20 @@ export default class Movie {
     };
   }
 
-  _renderShowMorButton() {
-    if (this._currentFilms.length > 5) {
-      const filmsListNode = this._catalogFilmsNode.querySelector('.films-list');
-      render(filmsListNode, this._showMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
-
-      const showMoreButtonNode = filmsListNode.querySelector('.films-list__show-more');
-
-      showMoreButtonNode.addEventListener('click', () => {
-        const shownFilmsIdx = this._renderMainListCard();
-        if (this._currentFilms.length === shownFilmsIdx) {
-          showMoreButtonNode.remove();
-        }
-      });
+  _handleShowMorButton() {
+    const shownFilmsIdx = this._renderMainListCard();
+    if (this._currentFilms.length === shownFilmsIdx) {
+      this._showMoreButtonNode.remove();
+      this._showMoreButtonNode = null;
     }
+  }
+
+  _renderShowMorButton() {
+    const filmsListNode = this._catalogFilmsNode.querySelector('.films-list');
+    render(filmsListNode, this._showMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
+
+    this._showMoreButtonNode = this._catalogFilmsNode.querySelector('.films-list__show-more');
+    this._showMoreButtonNode.addEventListener('click', this._handleShowMorButton);
   }
 
   _renderPopupComments(container, filmCommentIds) {
@@ -139,7 +132,6 @@ export default class Movie {
 
     return listTitleNode.textContent === filmListTitle;
   }
-
 
   _onCardClickEvent(evt) {
     const target = evt.target;
@@ -166,10 +158,6 @@ export default class Movie {
         this._renderPopup(this._mostCommentedFilms[filmIdx]);
         break;
     }
-  }
-
-  _handleOpenPopup() {
-    window.addEventListener('click', this._onCardClickEvent);
   }
 
   _closePopup() {
