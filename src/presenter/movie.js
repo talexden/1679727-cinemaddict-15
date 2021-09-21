@@ -45,7 +45,7 @@ export default class Movie {
   }
 
   init(films, comments) {
-    this._currentFilms = [...films];
+    this._currentFilms = films.slice();
     this._comments = comments;
     this._getSortedFilms();
     this._renderMovie();
@@ -100,6 +100,13 @@ export default class Movie {
       return shownFilmsIdx;
     };
   }
+
+  _renderTasks(from, to) {
+    this._currentFilms
+      .slice(from, to)
+      .forEach((filmCard) => this._renderTask(filmCard));
+  }
+
 
   _handleShowMorButton() {
     const shownFilmsIdx = this._renderMainListCard();

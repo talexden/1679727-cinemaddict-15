@@ -4,9 +4,9 @@ const navigationTemplate = (films) => {
   let [watchlistCount, historyCount, favoritesCount] = [0, 0, 0];
 
   for (const film of films) {
-    if (film.userDetails.watchlist) {watchlistCount++;}
-    if (film.userDetails.alreadyWatched) {historyCount++;}
-    if (film.userDetails.favorite) {favoritesCount++;}
+    if (film.watchlist) {watchlistCount++;}
+    if (film.alreadyWatched) {historyCount++;}
+    if (film.favorite) {favoritesCount++;}
   }
 
   return (
