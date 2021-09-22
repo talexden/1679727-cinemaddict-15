@@ -1,16 +1,13 @@
 
 import CardsView from '../view/card';
 import CatalogListView from '../view/catalog-list';
-import ShowMoreButtonView from '../view/show-more-button';
-import FooterStatisticView from '../view/footer-statistic';
 import CommentView from '../view/comment';
 import PopupFilmDetailsView from '../view/popup-film-details';
 import PopupFilmCommentsView from '../view/popup-film-comments';
 import {getMostCommentedSort, getRatingSort} from '../filters';
 import {isEscEvent, render, RenderPosition} from '../utils';
 import PopupTemplate from '../view/popup';
-import PopupFilmDetails from '../view/popup-film-details';
-import PopupFilmComments from '../view/popup-film-comments';
+import CatalogListContainerView from '../view/catalog-list-container';
 
 const MAIN_LIST_TITLE = 'All movies. Upcoming';
 const MAIN_LIST_TITLE_NO_MOVIES = 'There are no movies in our database';
@@ -21,10 +18,6 @@ const EXTRA_LIST_SIZE = 2;
 
 export default class Movie {
   constructor(bodyNode, catalogFilmsNode) {
-    this._showMoreButtonComponent = new ShowMoreButtonView();
-    this._footerStatisticComponent = new FooterStatisticView();
-    this._popupFilmDetailsComponent = new PopupFilmDetailsView();
-    this._popupFilmCommentsComponent = new PopupFilmCommentsView();
 
     this._ratingFilms = null;
     this._mostCommentedFilms = null;
@@ -32,8 +25,10 @@ export default class Movie {
 
     this._bodyNode = bodyNode;
     this._catalogFilmsNode = catalogFilmsNode;
+    this._filmsListNode = null;
 
     this._renderMainListCard = null;
+    this._shownFilmsCount = 0;
 
     this._handleShowMorButton = this._handleShowMorButton.bind(this);
     this._onCardClickEvent = this._onCardClickEvent.bind(this);
@@ -51,30 +46,31 @@ export default class Movie {
     this._renderMovie();
   }
 
+  _renderFilmListContainer(){
+    this._filmsListNode = this._catalogFilmsNode.querySelector('.films-list');
+    render(this._filmsListNode, new CatalogListContainerView().getElement(), RenderPosition.BEFOREEND);
+  }
+
   _renderMovie() {
-    let catalogFilmsContainerNode = '';
     let mainListTitle = MAIN_LIST_TITLE_NO_MOVIES;
     let mainListClass = '';
 
     if (this._currentFilms.length > 0) {
       render(this._catalogFilmsNode, new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
-      catalogFilmsContainerNode = this._catalogFilmsNode.querySelector('.films-list .films-list__container');
-      const renderMostListCard = this._renderCards(catalogFilmsContainerNode, this._mostCommentedFilms, EXTRA_LIST_SIZE);
-      renderMostListCard();
+      this._renderCatalogListContainer();
+      this._renderCards(0, Math.min(this._mostCommentedFilms.length, EXTRA_LIST_SIZE), this._mostCommentedFilms);
 
       render(this._catalogFilmsNode, new CatalogListView(TOP_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
-      catalogFilmsContainerNode = this._catalogFilmsNode.querySelector('.films-list .films-list__container');
-      const renderTopListCard = this._renderCards(catalogFilmsContainerNode, this._ratingFilms, EXTRA_LIST_SIZE);
-      renderTopListCard();
+      this._renderCatalogListContainer();
+      this._renderCards(0, Math.min(this._ratingFilms.length, EXTRA_LIST_SIZE), this._ratingFilms);
 
       mainListTitle = MAIN_LIST_TITLE;
       mainListClass = 'visually-hidden';
     }
 
     render(this._catalogFilmsNode, new CatalogListView(mainListTitle, '', mainListClass).getElement(), RenderPosition.AFTERBEGIN);
-    catalogFilmsContainerNode = this._catalogFilmsNode.querySelector('.films-list .films-list__container');
-    this._renderMainListCard = this._renderCards(catalogFilmsContainerNode, this._currentFilms, MAIN_LIST_SIZE);
-    this._renderMainListCard();
+    
+    this._renderCards(catalogFilmsContainerNode, this._currentFilms, MAIN_LIST_SIZE, true);
 
     if (this._currentFilms.length > 5) {
       this._renderShowMorButton();
@@ -88,23 +84,24 @@ export default class Movie {
     this._mostCommentedFilms = getMostCommentedSort(this._currentFilms);
   }
 
-  _renderCards(place, filmsData, cardsCount) {
-    let shownFilmsIdx = 0;
-    return () => {
-      const hiddenFilms = filmsData.length - shownFilmsIdx;
-      const count = hiddenFilms < cardsCount ? hiddenFilms + shownFilmsIdx: cardsCount + shownFilmsIdx;
-      for (let i = shownFilmsIdx; i < count; i++) {
-        render(place, new CardsView( filmsData[i], i).getElement(), RenderPosition.BEFOREEND);
-        shownFilmsIdx++;
-      }
-      return shownFilmsIdx;
-    };
+  _renderMainList() {
+    this._renderCards(0, Math.min(this._boardTasks.length, MAIN_LIST_SIZE));
+    this._renderCards(0, Math.min(this._boardTasks.length, MAIN_LIST_SIZE));
+
+    const startFilmsCount = Math.min(this._currentFilms.length, MAIN_LIST_SIZE);
+    this._renderCards(0, startFilmsCount);
+    this._shownFilmsCount = startFilmsCount;
+
+    if (this._boardTasks.length > MAIN_LIST_SIZE) {
+      this._renderLoadMoreButton();
+    }
   }
 
-  _renderTasks(from, to) {
-    this._currentFilms
+  _renderCards(from, to, filmsData) {
+    const filmsListContainerNode = this._filmsListNode.querySelector('.films-list .films-list__container');
+    filmsData
       .slice(from, to)
-      .forEach((filmCard) => this._renderTask(filmCard));
+      .forEach((filmCard) => render(filmsListContainerNode, new CardsView(filmCard), RenderPosition.BEFOREEND));
   }
 
 
@@ -183,8 +180,8 @@ export default class Movie {
   _renderPopup(filmData) {
     render(this._bodyNode, new PopupTemplate().getElement(), RenderPosition.BEFOREEND);
     const filmDetailsInnerNode = document.querySelector('.film-details__inner');
-    render(filmDetailsInnerNode, new PopupFilmDetails(filmData).getElement(), RenderPosition.BEFOREEND);
-    render(filmDetailsInnerNode, new PopupFilmComments(filmData).getElement(), RenderPosition.BEFOREEND);
+    render(filmDetailsInnerNode, new PopupFilmDetailsView(filmData).getElement(), RenderPosition.BEFOREEND);
+    render(filmDetailsInnerNode, new PopupFilmCommentsView(filmData).getElement(), RenderPosition.BEFOREEND);
 
     const filmDetailsCommentsListNode = filmDetailsInnerNode.querySelector('.film-details__comments-list');
     this._renderPopupComments(filmDetailsCommentsListNode, filmData.comments);

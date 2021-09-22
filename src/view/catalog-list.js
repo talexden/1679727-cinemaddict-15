@@ -4,7 +4,6 @@ import AbstractView from './abstract.js';
 const catalogListTemplate = (listTitle, listModifier = '', listTitleClass = '') => (
   `<section class="films-list ${listModifier}">
     <h2 class="films-list__title ${listTitleClass}">${listTitle}</h2>
-    ${(listTitleClass === '') && (listModifier === '') ?  '' : '<div class="films-list__container"></div>'}
   </section>`
 );
 
