@@ -2,17 +2,20 @@ import {render, RenderPosition} from '../utils';
 import CardsView from '../view/card';
 
 export default class Cards {
-  constructor(filmCatalogNode) {
-    this._filmCatalogNode = filmCatalogNode;
+  constructor() {
+    this._filmCatalogNode = null;
+    this._filmData = null;
   }
 
-  init(filmData) {
+  init(filmCatalogNode, filmData) {
+    this._filmCatalogNode = filmCatalogNode;
     this._filmData = filmData;
-    this.__renderCard();
+    this._renderCard();
   }
 
   _renderCard() {
-    render(this._filmCatalogNode, new CardsView(this._filmData).getElement(), RenderPosition.BEFOREEND);
+    const filmCard = new CardsView(this._filmData);
+    render(this._filmCatalogNode, filmCard.getElement(), RenderPosition.BEFOREEND);
     this._filmCatalog.addEventListener('click', this._onCardClickEvent);
   }
 
