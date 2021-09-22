@@ -10,8 +10,7 @@ import {getComments} from './mock/create-comments';
 
 const FILMS_CATALOG_SIZE = 8;
 
-const bodyNode = document.querySelector('body');
-const mainNode = bodyNode.querySelector('.main');
+const mainNode = document.querySelector('.main');
 
 const films = createFilmCards(FILMS_CATALOG_SIZE);
 
@@ -24,7 +23,7 @@ render(mainNode, new CatalogSorting().getElement(), RenderPosition.BEFOREEND);
 render(mainNode, new Catalog().getElement(), RenderPosition.BEFOREEND);
 
 const catalogFilmsNode = mainNode.querySelector('.films');
-const moviePresenter = new MoviePresenter(bodyNode, catalogFilmsNode);
+const moviePresenter = new MoviePresenter(catalogFilmsNode);
 moviePresenter.init(films, getComments());
 
 const footerNode = document.querySelector('.footer');
