@@ -3,10 +3,8 @@ import dayjs from 'dayjs';
 import AbstractView from './abstract.js';
 
 const  popupFilmDetailsTemplate = (film) => {
-  const {filmInfo, userDetails} = film;
-  const {title, alternativeTitle, totalRating, ageRating, director, writers, actors, release, runtime, genres, poster, description} = filmInfo;
-  const {watchlist, alreadyWatched, favorite} = userDetails;
-  const releaseDate = dayjs(release.date).format('DD MMMM YYYY');
+  const {title, alternativeTitle, totalRating, ageRating, director, writers, actors, runtime, date, country, genres, poster, description, watchlist, alreadyWatched, favorite} = film;
+  const releaseDate = dayjs(date).format('DD MMMM YYYY');
   const duration = `${Math.floor(runtime/60)}h ${runtime%60}m`;
   const getButtonClass = (Boolean) => Boolean ? 'film-details__control-button--active ': '';
   const popupWriters = writers.length > 1 ? 'Writers' : 'Writer';
@@ -42,7 +40,7 @@ const  popupFilmDetailsTemplate = (film) => {
             ${filmDetailsTemplate('Actors', actors.join(', '))}
             ${filmDetailsTemplate('Release Date', releaseDate)}
             ${filmDetailsTemplate('Runtime', duration)}
-            ${filmDetailsTemplate('Country', release.country)}
+            ${filmDetailsTemplate('Country', country)}
             ${filmDetailsTemplate(popupGenres, genres.join(', '))}
           </table>
 
