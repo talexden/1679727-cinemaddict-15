@@ -1,4 +1,4 @@
-import {isEscEvent, render, RenderPosition} from '../utils';
+import {isEscEvent, render, RenderPosition} from '../utils/utils';
 import CardsView from '../view/card';
 import CommentView from '../view/comment';
 import PopupTemplateView from '../view/popup';

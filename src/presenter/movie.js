@@ -1,7 +1,7 @@
 
 import CatalogListView from '../view/catalog-list.js';
 import {getMostCommentedSort, getRatingSort} from '../filters.js';
-import {render, RenderPosition} from '../utils.js';
+import {render, RenderPosition} from '../utils/utils.js';
 import CatalogListContainerView from '../view/catalog-list-container.js';
 import ShowMoreButtonView from '../view/show-more-button.js';
 import CardPresenter from './card';
@@ -14,7 +14,8 @@ const MOST_COMMENTED_LIST_TITLE = 'Most commented';
 const EXTRA_LIST_SIZE = 2;
 
 export default class Movie {
-  constructor(catalogFilmsNode) {
+  constructor(catalogFilmsNode, moviesModel) {
+    this._moviesModel = moviesModel;
     this._ratingFilms = null;
     this._mostCommentedFilms = null;
     this._showMoreButtonNode = null;
@@ -108,5 +109,9 @@ export default class Movie {
       this._showMoreButtonNode.remove();
       this._showMoreButtonNode = null;
     }
+  }
+
+  _getMovies() {
+    return this._moviesModel.getMovies();
   }
 }

@@ -8,7 +8,7 @@ const popupTemplate = () => (
 );
 
 
-export default class PopupTemplate extends AbstractView {
+export default class Popup extends AbstractView {
   getTemplate() {
     return popupTemplate();
   }

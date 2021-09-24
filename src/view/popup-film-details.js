@@ -1,11 +1,12 @@
 import {filmDetailsTemplate} from './film-details-template.js';
 import dayjs from 'dayjs';
 import AbstractView from './abstract.js';
+const MINUTES_PER_HOUR = 60;
 
 const  popupFilmDetailsTemplate = (film) => {
   const {title, alternativeTitle, totalRating, ageRating, director, writers, actors, runtime, date, country, genres, poster, description, watchlist, alreadyWatched, favorite} = film;
   const releaseDate = dayjs(date).format('DD MMMM YYYY');
-  const duration = `${Math.floor(runtime/60)}h ${runtime%60}m`;
+  const duration = `${Math.floor(runtime/MINUTES_PER_HOUR)}h ${runtime%MINUTES_PER_HOUR}m`;
   const getButtonClass = (Boolean) => Boolean ? 'film-details__control-button--active ': '';
   const popupWriters = writers.length > 1 ? 'Writers' : 'Writer';
   const popupGenres = writers.length > 1 ? 'Genres' : 'Genre';

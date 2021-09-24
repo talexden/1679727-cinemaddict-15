@@ -1,5 +1,23 @@
 import {NAMES, SURNAMES} from './constants.js';
 
+const getAlphaNumericRandom = (length) => {
+  if ((length === undefined) || (length <= 0)) {
+    length = 1;
+  }
+  const CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  let ifFirst = 0;
+  for(let i = 0; i < length; i++){
+    if (i === 0) {
+      ifFirst = 10;
+    } else {
+      ifFirst = 0;
+    }
+    result += CHARACTERS[Math.round(Math.random() * (CHARACTERS.length - ifFirst - 1))];
+  }
+  return result;
+};
+
 
 const getIdx = (startIdx = 0) => {
   let idx = startIdx;
@@ -60,5 +78,6 @@ export {
   getRandomArrayElement,
   getRandomInt,
   getRandomPerson,
-  getRandomListFrom
+  getRandomListFrom,
+  getAlphaNumericRandom
 };
