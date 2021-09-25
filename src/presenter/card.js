@@ -1,13 +1,14 @@
-import {isEscEvent, render, RenderPosition} from '../utils/utils';
-import CardsView from '../view/card';
-import CommentView from '../view/comment';
-import PopupTemplateView from '../view/popup';
-import PopupFilmDetailsView from '../view/popup-film-details';
-import PopupFilmCommentsView from '../view/popup-film-comments';
+import {isEscEvent} from '../utils/common.js';
+import CardsView from '../view/card.js';
+import CommentView from '../view/comment.js';
+import PopupTemplateView from '../view/popup.js';
+import PopupFilmDetailsView from '../view/popup-film-details.js';
+import PopupFilmCommentsView from '../view/popup-film-comments.js';
+import {remove, render, RenderPosition} from '../utils/render.js';
 
 export default class Card {
   constructor() {
-    this._popupTemplateViewComponent = new PopupTemplateView().getElement();
+    this._popupTemplateViewComponent = new PopupTemplateView();
     this._popupFilmDetailsViewComponent = null;
     this._popupFilmCommentsViewComponent = null;
     this._curentFilmCard = null;
@@ -28,14 +29,14 @@ export default class Card {
     this._filmCatalogNode = filmCatalogNode;
     this._filmData = filmData;
     this._comments = commentsData;
-    this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(filmData).getElement();
-    this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(filmData).getElement();
+    this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(filmData);
+    this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(filmData);
     this._renderCard();
   }
 
   _renderCard() {
-    this._curentFilmCard = new CardsView(this._filmData).getElement();
-    this._curentFilmCard.addEventListener('click', this._onCardClickEvent);
+    this._curentFilmCard = new CardsView(this._filmData);
+    this._curentFilmCard.setClickHandler(this._onCardClickEvent);
     render(this._filmCatalogNode, this._curentFilmCard, RenderPosition.BEFOREEND);
   }
 
@@ -69,67 +70,29 @@ export default class Card {
     const filmDetailsCommentsListNode = filmDetailsInnerNode.querySelector('.film-details__comments-list');
     this._renderPopupComments(filmDetailsCommentsListNode, filmData.comments);
 
-    const popupCloseButton = filmDetailsInnerNode.querySelector('.film-details__close-btn');
-
-    popupCloseButton.addEventListener('click', this._closePopup);
-    this._curentFilmCard.removeEventListener('click', this._onCardClickEvent);
+    this._popupFilmDetailsViewComponent.setClickHandler(this._closePopup);
 
     this._bodyNode.classList.add('hide-overflow');
-    window.removeEventListener('click', this._onCardClickEvent);
     window.addEventListener('keydown', this._onEscPopup);
-    // const popupWatchlistButton = filmDetailsInnerNode.querySelector('.film-details__control-button--watchlist');
-    // const popupWatchedButton = filmDetailsInnerNode.querySelector('.film-details__control-button--watched');
-    // const popupFavoriteButton = filmDetailsInnerNode.querySelector('.film-details__control-button--favorite');
   }
 
   _renderPopupComments(container, filmCommentIds) {
     filmCommentIds.forEach((commentId) => {
-      render(container, new CommentView(this._comments[commentId]).getElement(), RenderPosition.BEFOREEND);
+      render(container, new CommentView(this._comments[commentId]), RenderPosition.BEFOREEND);
     });
   }
 
   _closePopup() {
-    this._bodyNode.removeChild(this._bodyNode.querySelector('.film-details'));
+    remove(this._popupTemplateViewComponent);
     this._bodyNode.classList.remove('hide-overflow');
-    window.addEventListener('click', this._onCardClickEvent);
+    window.removeEventListener('keydown', this._onEscPopup);
   }
 
   _onEscPopup(evt) {
     if (isEscEvent(evt)) {
       this._closePopup();
-      window.removeEventListener('keydown', this._onEscPopup);
     }
   }
-
-  // _handleWatchlistClick() {
-  //   this._changeData(
-  //     Object.assign(
-  //       {}, this._filmData, {
-  //         watchlist: !this._filmData.watchlist,
-  //       },
-  //     ),
-  //   );
-  // }
-  //
-  // _handleAlreadyWatchedClick() {
-  //   this._changeData(
-  //     Object.assign(
-  //       {}, this._filmData, {
-  //         alreadyWatched: !this._filmData.alreadyWatched,
-  //       },
-  //     ),
-  //   );
-  // }
-  //
-  // _handleFavoriteClick() {
-  //   this._changeData(
-  //     Object.assign(
-  //       {}, this._filmData, {
-  //         favorite: !this._filmData.favorite,
-  //       },
-  //     ),
-  //   );
-  // }
 }
 
 

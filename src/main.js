@@ -3,13 +3,13 @@ import CatalogSorting from './view/catalog-sorting.js';
 import FooterStatistic from './view/footer-statistic.js';
 import UserProfile from './view/user-profile.js';
 import Navigation from './view/navigation.js';
-import {render, RenderPosition} from './utils/utils.js';
 import {createFilmCards} from './mock/create-film-cards';
 import MoviePresenter from './presenter/movie';
 import {getComments} from './mock/create-comments';
 import DataModel from './model/data.js';
 import Api from './api.js';
 import {getAlphaNumericRandom, getRandomInt} from './mock/utils.js';
+import {render, RenderPosition} from './utils/render';
 
 const FILMS_CATALOG_SIZE = 8;
 
@@ -54,17 +54,17 @@ const commentsModel = new DataModel();
 commentsModel.setData(getComments());
 
 
-render(mainNode, new Navigation(movies).getElement(), RenderPosition.BEFOREEND);
+render(mainNode, new Navigation(movies), RenderPosition.BEFOREEND);
 const headerNode = document.querySelector('.header');
-render(headerNode, new UserProfile().getElement(), RenderPosition.BEFOREEND);
+render(headerNode, new UserProfile(), RenderPosition.BEFOREEND);
 
 
-render(mainNode, new CatalogSorting().getElement(), RenderPosition.BEFOREEND);
-render(mainNode, new Catalog().getElement(), RenderPosition.BEFOREEND);
+render(mainNode, new CatalogSorting(), RenderPosition.BEFOREEND);
+render(mainNode, new Catalog(), RenderPosition.BEFOREEND);
 
 const catalogFilmsNode = mainNode.querySelector('.films');
 const moviePresenter = new MoviePresenter(catalogFilmsNode, moviesModel);
 moviePresenter.init(movies, getComments());
 
 const footerNode = document.querySelector('.footer');
-render(footerNode, new FooterStatistic(movies.length).getElement(), RenderPosition.BEFOREEND);
+render(footerNode, new FooterStatistic(movies.length), RenderPosition.BEFOREEND);

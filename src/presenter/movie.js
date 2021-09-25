@@ -1,10 +1,10 @@
 
 import CatalogListView from '../view/catalog-list.js';
 import {getMostCommentedSort, getRatingSort} from '../filters.js';
-import {render, RenderPosition} from '../utils/utils.js';
 import CatalogListContainerView from '../view/catalog-list-container.js';
 import ShowMoreButtonView from '../view/show-more-button.js';
-import CardPresenter from './card';
+import CardPresenter from './card.js';
+import {remove, render, RenderPosition} from '../utils/render.js';
 
 const MAIN_LIST_TITLE = 'All movies. Upcoming';
 const MAIN_LIST_TITLE_NO_MOVIES = 'There are no movies in our database';
@@ -63,23 +63,23 @@ export default class Movie {
 
   _renderFilmListContainer() {
     this._filmsListNode = this._catalogFilmsNode.querySelector('.films-list');
-    render(this._filmsListNode, new CatalogListContainerView().getElement(), RenderPosition.BEFOREEND);
+    render(this._filmsListNode, new CatalogListContainerView(), RenderPosition.BEFOREEND);
   }
 
   _renderMostCommentedFilmsList() {
-    render(this._catalogFilmsNode, new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
+    render(this._catalogFilmsNode, new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra'), RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
     this._renderCards(0, this._mostCommentedFilms, EXTRA_LIST_SIZE);
   }
 
   _renderTopFilmsList() {
-    render(this._catalogFilmsNode, new CatalogListView(TOP_LIST_TITLE, 'films-list--extra').getElement(), RenderPosition.AFTERBEGIN);
+    render(this._catalogFilmsNode, new CatalogListView(TOP_LIST_TITLE, 'films-list--extra'), RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
     this._renderCards(0, this._ratingFilms, EXTRA_LIST_SIZE);
   }
 
   _renderMainFilmsList(mainListTitle, mainListClass) {
-    render(this._catalogFilmsNode, new CatalogListView(mainListTitle, '', mainListClass).getElement(), RenderPosition.AFTERBEGIN);
+    render(this._catalogFilmsNode, new CatalogListView(mainListTitle, '', mainListClass), RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
     this._renderCards(0, this._currentFilms, MAIN_LIST_SIZE, true);
   }
@@ -96,17 +96,15 @@ export default class Movie {
 
   _renderShowMorButton() {
     const filmsListNode = this._catalogFilmsNode.querySelector('.films-list');
-    render(filmsListNode, this._showMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
-
-    this._showMoreButtonNode = this._catalogFilmsNode.querySelector('.films-list__show-more');
-    this._showMoreButtonNode.addEventListener('click', this._handleShowMorButton);
+    render(filmsListNode, this._showMoreButtonComponent, RenderPosition.BEFOREEND);
+    this._showMoreButtonComponent.setClickHandler(this._handleShowMorButton);
   }
 
   _handleShowMorButton() {
     this._renderCards(this._shownFilmsCount, this._currentFilms, MAIN_LIST_SIZE);
 
     if (!(this._currentFilms.length === this._shownFilmsCount)) {
-      this._showMoreButtonNode.remove();
+      remove(this._showMoreButtonComponent);
       this._showMoreButtonNode = null;
     }
   }
