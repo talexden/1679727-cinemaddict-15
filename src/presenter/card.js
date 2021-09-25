@@ -7,11 +7,12 @@ import PopupFilmCommentsView from '../view/popup-film-comments.js';
 import {remove, render, RenderPosition} from '../utils/render.js';
 
 export default class Card {
-  constructor() {
+  constructor(changeData) {
     this._popupTemplateViewComponent = new PopupTemplateView();
     this._popupFilmDetailsViewComponent = null;
     this._popupFilmCommentsViewComponent = null;
     this._curentFilmCard = null;
+    this._changeData = changeData;
 
     this._filmCatalogNode = null;
     this._filmData = null;
@@ -23,6 +24,8 @@ export default class Card {
     this._onCardClickEvent = this._onCardClickEvent.bind(this);
     this._closePopup = this._closePopup.bind(this);
     this._onEscPopup = this._onEscPopup.bind(this);
+    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleArchiveClick = this._handleArchiveClick.bind(this);
   }
 
   init(filmCatalogNode, filmData, commentsData) {
@@ -32,6 +35,10 @@ export default class Card {
     this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(filmData);
     this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(filmData);
     this._renderCard();
+  }
+
+  destroy() {
+    remove(this._curentFilmCard);
   }
 
   _renderCard() {

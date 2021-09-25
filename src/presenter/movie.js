@@ -5,6 +5,7 @@ import CatalogListContainerView from '../view/catalog-list-container.js';
 import ShowMoreButtonView from '../view/show-more-button.js';
 import CardPresenter from './card.js';
 import {remove, render, RenderPosition} from '../utils/render.js';
+import {updateItem} from '../utils/common.js';
 
 const MAIN_LIST_TITLE = 'All movies. Upcoming';
 const MAIN_LIST_TITLE_NO_MOVIES = 'There are no movies in our database';
@@ -18,15 +19,15 @@ export default class Movie {
     this._moviesModel = moviesModel;
     this._ratingFilms = null;
     this._mostCommentedFilms = null;
-    this._showMoreButtonNode = null;
     this._showMoreButtonComponent = new ShowMoreButtonView();
-
+    this._filmPresenter = new Map();
 
     this._catalogFilmsNode = catalogFilmsNode;
     this._filmsListNode = null;
 
     this._shownFilmsCount = 0;
 
+    this._handleCardChange = this._handleCardChange.bind(this);
     this._handleShowMorButton = this._handleShowMorButton.bind(this);
   }
 
@@ -84,11 +85,17 @@ export default class Movie {
     this._renderCards(0, this._currentFilms, MAIN_LIST_SIZE, true);
   }
 
+  _renderCard(filmsListContainerNode, film) {
+    const cardPresenter = new CardPresenter(this._handleCardChange);
+    cardPresenter.init(filmsListContainerNode, film, this._currentComments);
+    this._filmPresenter.set(film.id, cardPresenter);
+  }
+
   _renderCards(from, filmsData, listSize, isMainListCard = false) {
     const filmsListContainerNode = this._filmsListNode.querySelector('.films-list .films-list__container');
     const to = Math.min(filmsData.length - from, listSize);
     const filmsArray = filmsData.slice(from, to + from);
-    filmsArray.forEach((filmCard) => new CardPresenter().init(filmsListContainerNode, filmCard, this._currentComments));
+    filmsArray.forEach((filmCard) => this._renderCard(filmsListContainerNode, filmCard));
     if (isMainListCard) {
       this._shownFilmsCount += to;
     }
@@ -111,5 +118,17 @@ export default class Movie {
 
   _getMovies() {
     return this._moviesModel.getMovies();
+  }
+
+  _clearFilmList() {
+    this._filmPresenter.forEach((presenter) => presenter.destroy());
+    this._filmPresenter.clear();
+    this._shownFilmsCount = 0;
+    remove(this._showMoreButtonComponent);
+  }
+
+  _handleCardChange(updatedFilm) {
+    this._boardTasks = updateItem(this._boardTasks, updatedFilm);
+    this._taskPresenter.get(updatedFilm.id).init(updatedFilm);
   }
 }
