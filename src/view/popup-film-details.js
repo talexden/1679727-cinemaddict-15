@@ -64,17 +64,51 @@ export default class PopupFilmDetails extends AbstractView {
   constructor(film) {
     super();
     this._film = film;
-    this._clickHandler = this._clickHandler.bind(this);
+    this._closePopupClickHandler = this._closePopupClickHandler.bind(this);
+    this._wachlistClickHandler = this._wachlistClickHandler.bind(this);
+    this._wachedClickHandler = this._wachedClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
-  _clickHandler(evt) {
+  _closePopupClickHandler(evt) {
     evt.preventDefault();
-    this._callback.click();
+    this._callback.closePopupClick();
   }
 
-  setClickHandler(callback) {
-    this._callback.click = callback;
-    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._clickHandler);
+  _wachlistClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.wachlistClick();
+  }
+
+  _wachedClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.wachedClick();
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+
+  }
+
+  setClosePopupClickHandler(callback) {
+    this._callback.closePopupClick = callback;
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', this._closePopupClickHandler);
+  }
+
+  setWachlistClickHandler(callback) {
+    this._callback.wachlistClick = callback;
+    this.getElement().querySelector('.film-details__control-button--watchlist').addEventListener('click', this._wachlistClickHandler);
+  }
+
+  setWachedClickHandler(callback) {
+    this._callback.wachedClick = callback;
+    this.getElement().querySelector('.film-details__control-button--watched').addEventListener('click', this._wachedClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector('.film-details__control-button--favorite').addEventListener('click', this._favoriteClickHandler);
   }
 
   getTemplate() {

@@ -29,6 +29,7 @@ export default class Movie {
 
     this._handleCardChange = this._handleCardChange.bind(this);
     this._handleShowMorButton = this._handleShowMorButton.bind(this);
+    this._handleModeChange = this._handleModeChange.bind(this);
   }
 
   init(films, comments) {
@@ -36,6 +37,10 @@ export default class Movie {
     this._currentComments = comments.slice();
     this._getSortedFilms();
     this._renderMovie();
+  }
+
+  _handleModeChange(flag) {
+    this._filmPresenter.forEach((presenter) => presenter.resetView(flag));
   }
 
   _renderMovie() {
@@ -86,7 +91,7 @@ export default class Movie {
   }
 
   _renderCard(filmsListContainerNode, film) {
-    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleCardChange, this._currentComments);
+    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleCardChange, this._currentComments, this._handleModeChange);
     cardPresenter.init(film);
     this._filmPresenter.set(film.id, cardPresenter);
   }

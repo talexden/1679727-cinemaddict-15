@@ -6,16 +6,23 @@ import PopupFilmDetailsView from '../view/popup-film-details.js';
 import PopupFilmCommentsView from '../view/popup-film-comments.js';
 import {remove, render, RenderPosition, replace} from '../utils/render.js';
 
+const Mode = {
+  CLOSED: 'CLOSED',
+  OPENED: 'OPENED',
+};
+
 export default class Card {
-  constructor(filmCatalogNode, changeData, commentsData) {
-    this._changeData = changeData;
+  constructor(filmCatalogNode, changeData, commentsData, changeMode) {
     this._filmCatalogNode = filmCatalogNode;
+    this._changeData = changeData;
+    this._mockComments = commentsData;
+    this._changeMode = changeMode;
     this._popupTemplateViewComponent = new PopupTemplateView();
+    this._cardComponent = null;
     this._popupFilmDetailsViewComponent = null;
     this._popupFilmCommentsViewComponent = null;
-    this._cardComponent = null;
+    this._popupMode = Mode.CLOSED;
 
-    this._mockComments = commentsData;
 
     this._bodyNode = document.querySelector('body');
 
@@ -33,6 +40,7 @@ export default class Card {
     this._film = film;
     this._comments = this._mockComments;
     const prevCardComponent = this._cardComponent;
+    const prevPopupDetailsComponent = this._popupFilmDetailsViewComponent;
 
     this._cardComponent = new CardsView(this._film);
     this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(film);
@@ -47,22 +55,37 @@ export default class Card {
       render(this._filmCatalogNode, this._cardComponent, RenderPosition.BEFOREEND);
     } else {
       replace(this._cardComponent, prevCardComponent);
+      // replace(this._popupFilmDetailsViewComponent, prevPopupDetailsComponent);
     }
 
-    // не работает ремув
+    if (this._popupMode !== Mode.CLOSED) {
+      replace(this._popupFilmDetailsViewComponent, prevPopupDetailsComponent);
+      this._renderPopup(this._film);
+    }
+
+    // не работает ремув, говорит, что prevCardComponent не порождение абстракции.
     // remove(prevCardComponent);
   }
 
   destroy() {
     remove(this._cardComponent);
+    remove(this._popupFilmDetailsViewComponent);
+    remove(this._popupFilmCommentsViewComponent);
+  }
+
+  resetView(flag) {
+    this._popupMode = flag;
   }
 
   _onCardClickEvent() {
-    this._renderPopup(this._film);
+    if (this._popupMode === Mode.CLOSED) {
+      this._renderPopup(this._film);
+    }
   }
 
 
   _renderPopup(filmData) {
+    remove(this._popupTemplateViewComponent);
     render(this._bodyNode, this._popupTemplateViewComponent, RenderPosition.BEFOREEND);
     const filmDetailsInnerNode = document.querySelector('.film-details__inner');
     render(filmDetailsInnerNode, this._popupFilmDetailsViewComponent, RenderPosition.BEFOREEND);
@@ -71,10 +94,14 @@ export default class Card {
     const filmDetailsCommentsListNode = filmDetailsInnerNode.querySelector('.film-details__comments-list');
     this._renderPopupComments(filmDetailsCommentsListNode, filmData.comments);
 
-    this._popupFilmDetailsViewComponent.setClickHandler(this._closePopup);
+    this._popupFilmDetailsViewComponent.setClosePopupClickHandler(this._closePopup);
+    this._popupFilmDetailsViewComponent.setWachlistClickHandler(this._handleWachlistClick);
+    this._popupFilmDetailsViewComponent.setWachedClickHandler(this._handleWachedClick);
+    this._popupFilmDetailsViewComponent.setFavoriteClickHandler(this._handleFavoriteClick);
 
     this._bodyNode.classList.add('hide-overflow');
     window.addEventListener('keydown', this._onEscPopup);
+    this._changeMode(Mode.OPENED);
   }
 
   _renderPopupComments(container, filmCommentIds) {
@@ -87,6 +114,7 @@ export default class Card {
     remove(this._popupTemplateViewComponent);
     this._bodyNode.classList.remove('hide-overflow');
     window.removeEventListener('keydown', this._onEscPopup);
+    this._changeMode(Mode.CLOSED);
   }
 
   _onEscPopup(evt) {
