@@ -4,19 +4,18 @@ import CommentView from '../view/comment.js';
 import PopupTemplateView from '../view/popup.js';
 import PopupFilmDetailsView from '../view/popup-film-details.js';
 import PopupFilmCommentsView from '../view/popup-film-comments.js';
-import {remove, render, RenderPosition} from '../utils/render.js';
+import {remove, render, RenderPosition, replace} from '../utils/render.js';
 
 export default class Card {
-  constructor(changeData) {
+  constructor(filmCatalogNode, changeData, commentsData) {
+    this._changeData = changeData;
+    this._filmCatalogNode = filmCatalogNode;
     this._popupTemplateViewComponent = new PopupTemplateView();
     this._popupFilmDetailsViewComponent = null;
     this._popupFilmCommentsViewComponent = null;
-    this._curentFilmCard = null;
-    this._changeData = changeData;
+    this._cardComponent = null;
 
-    this._filmCatalogNode = null;
-    this._filmData = null;
-    this._comments = null;
+    this._mockComments = commentsData;
 
     this._bodyNode = document.querySelector('body');
 
@@ -24,47 +23,42 @@ export default class Card {
     this._onCardClickEvent = this._onCardClickEvent.bind(this);
     this._closePopup = this._closePopup.bind(this);
     this._onEscPopup = this._onEscPopup.bind(this);
+    this._handleWachlistClick = this._handleWachlistClick.bind(this);
+    this._handleWachedClick = this._handleWachedClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
-    this._handleArchiveClick = this._handleArchiveClick.bind(this);
+
   }
 
-  init(filmCatalogNode, filmData, commentsData) {
-    this._filmCatalogNode = filmCatalogNode;
-    this._filmData = filmData;
-    this._comments = commentsData;
-    this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(filmData);
-    this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(filmData);
-    this._renderCard();
+  init(film) {
+    this._film = film;
+    this._comments = this._mockComments;
+    const prevCardComponent = this._cardComponent;
+
+    this._cardComponent = new CardsView(this._film);
+    this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(film);
+    this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(film);
+
+    this._cardComponent.setWachlistClickHandler(this._handleWachlistClick);
+    this._cardComponent.setWachedClickHandler(this._handleWachedClick);
+    this._cardComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._cardComponent.setClickHandler(this._onCardClickEvent);
+
+    if (prevCardComponent === null) {
+      render(this._filmCatalogNode, this._cardComponent, RenderPosition.BEFOREEND);
+    } else {
+      replace(this._cardComponent, prevCardComponent);
+    }
+
+    // не работает ремув
+    // remove(prevCardComponent);
   }
 
   destroy() {
-    remove(this._curentFilmCard);
+    remove(this._cardComponent);
   }
 
-  _renderCard() {
-    this._curentFilmCard = new CardsView(this._filmData);
-    this._curentFilmCard.setClickHandler(this._onCardClickEvent);
-    render(this._filmCatalogNode, this._curentFilmCard, RenderPosition.BEFOREEND);
-  }
-
-  _onCardClickEvent(evt) {
-    const target = evt.target;
-
-    evt.preventDefault();
-
-    switch (true) {
-      case target.classList.contains('film-card__poster'):
-      case target.classList.contains('film-card__title'):
-      case target.classList.contains('film-card__comments'):
-        this._renderPopup(this._filmData);
-        break;
-      case target.classList.contains('film-card__controls-item--add-to-watchlist'):
-        break;
-      case target.classList.contains('film-card__controls-item--mark-as-watched'):
-        break;
-      case target.classList.contains('film-card__controls-item--favorite'):
-        break;
-    }
+  _onCardClickEvent() {
+    this._renderPopup(this._film);
   }
 
 
@@ -99,6 +93,42 @@ export default class Card {
     if (isEscEvent(evt)) {
       this._closePopup();
     }
+  }
+
+  _handleFavoriteClick() {
+    this._changeData(
+      Object.assign(
+        {},
+        this._film,
+        {
+          favorite: !this._film.favorite,
+        },
+      ),
+    );
+  }
+
+  _handleWachlistClick() {
+    this._changeData(
+      Object.assign(
+        {},
+        this._film,
+        {
+          watchlist: !this._film.watchlist,
+        },
+      ),
+    );
+  }
+
+  _handleWachedClick() {
+    this._changeData(
+      Object.assign(
+        {},
+        this._film,
+        {
+          alreadyWatched: !this._film.alreadyWatched,
+        },
+      ),
+    );
   }
 }
 

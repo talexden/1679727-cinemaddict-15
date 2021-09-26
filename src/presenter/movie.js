@@ -86,8 +86,8 @@ export default class Movie {
   }
 
   _renderCard(filmsListContainerNode, film) {
-    const cardPresenter = new CardPresenter(this._handleCardChange);
-    cardPresenter.init(filmsListContainerNode, film, this._currentComments);
+    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleCardChange, this._currentComments);
+    cardPresenter.init(film);
     this._filmPresenter.set(film.id, cardPresenter);
   }
 
@@ -128,7 +128,7 @@ export default class Movie {
   }
 
   _handleCardChange(updatedFilm) {
-    this._boardTasks = updateItem(this._boardTasks, updatedFilm);
-    this._taskPresenter.get(updatedFilm.id).init(updatedFilm);
+    this._currentFilms = updateItem(this._currentFilms, updatedFilm);
+    this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
   }
 }

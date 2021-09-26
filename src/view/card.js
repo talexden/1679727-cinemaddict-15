@@ -3,8 +3,8 @@ import AbstractView from './abstract.js';
 const MAX_DESCRIPTION_LENGTH = 140;
 
 
-const cardTemplate = (filmData, cardIdx) => {
-  const {comments, title, totalRating, date, runtime, genres, poster, description, watchlist, alreadyWatched, favorite} = filmData;
+const cardTemplate = (film) => {
+  const {comments, title, totalRating, date, runtime, genres, poster, description, watchlist, alreadyWatched, favorite} = film;
   const dateFullYear = date.getFullYear();
   const duration = `${Math.floor(runtime/60)}h ${runtime%60}m`;
   const getCardDescription = (cardDescription) => {
@@ -19,7 +19,7 @@ const cardTemplate = (filmData, cardIdx) => {
   const getButtonClass = (isActive) => isActive ? 'film-card__controls-item--active ': '';
 
   return (
-    `<article class="film-card" film-id="${cardIdx}">
+    `<article class="film-card">
       <h3 class="film-card__title">${title}</h3>
       <p class="film-card__rating">${totalRating}</p>
       <p class="film-card__info">
@@ -41,24 +41,59 @@ const cardTemplate = (filmData, cardIdx) => {
 
 
 export default class Cards extends AbstractView {
-  constructor(filmsData, idx) {
+  constructor(film) {
     super();
-    this._filmData = filmsData;
-    this._idx = idx;
+    this._film = film;
     this._clickHandler = this._clickHandler.bind(this);
+    this._wachlistClickHandler = this._wachlistClickHandler.bind(this);
+    this._wachedClickHandler = this._wachedClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+  }
+
+  getTemplate() {
+    return cardTemplate(this._film);
   }
 
   _clickHandler(evt) {
     evt.preventDefault();
-    this._callback.click(evt);
+    this._callback.openPopupClick();
+  }
+
+  _wachlistClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.wachlistClick();
+  }
+
+  _wachedClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.wachedClick();
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+
   }
 
   setClickHandler(callback) {
-    this._callback.click = callback;
-    this.getElement().addEventListener('click', this._clickHandler);
+    this._callback.openPopupClick = callback;
+    this.getElement().querySelector('.film-card__poster').addEventListener('click', this._clickHandler);
+    this.getElement().querySelector('.film-card__title').addEventListener('click', this._clickHandler);
+    this.getElement().querySelector('.film-card__comments').addEventListener('click', this._clickHandler);
   }
 
-  getTemplate() {
-    return cardTemplate(this._filmData, this._idx);
+  setWachlistClickHandler(callback) {
+    this._callback.wachlistClick = callback;
+    this.getElement().querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this._wachlistClickHandler);
+  }
+
+  setWachedClickHandler(callback) {
+    this._callback.wachedClick = callback;
+    this.getElement().querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this._wachedClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector('.film-card__controls-item--favorite').addEventListener('click', this._favoriteClickHandler);
   }
 }
