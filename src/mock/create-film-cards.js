@@ -53,7 +53,7 @@ const getFilmCard = () => {
     alternativeTitle: getAlternativeTitles(),
     totalRating: getRating(3, 10),
     poster: `./images/posters/${getRandomArrayElement(POSTERS)}`,
-    ageRating: getRandomArrayElement(AGE), // в тех задании есть этот ключ, не понимаю к чему он вообще
+    ageRating: getRandomArrayElement(AGE),
     director: getRandomPerson(),
     writers: getRandomPeople(1, 3),
     actors: getRandomPeople(2, 5),

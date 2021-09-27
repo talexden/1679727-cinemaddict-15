@@ -16,11 +16,13 @@ const MOST_COMMENTED_LIST_TITLE = 'Most commented';
 const EXTRA_LIST_SIZE = 2;
 
 export default class Movie {
-  constructor(catalogFilmsNode, moviesModel) {
+  constructor(catalogFilmsNode, moviesModel, api) {
+    this._api = api;
     this._moviesModel = moviesModel;
     this._ratingFilms = null;
     this._mostCommentedFilms = null;
     this._showMoreButtonComponent = new ShowMoreButtonView();
+    this._loadingFilmsComponent = null;
     this._filmPresenter = new Map();
     this._isLoading = true;
 
@@ -32,11 +34,11 @@ export default class Movie {
     this._handleShowMorButton = this._handleShowMorButton.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleViewAction = this._handleViewAction.bind(this);
-    this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._handleMoviesModelEvent = this._handleMoviesModelEvent.bind(this);
   }
 
   init() {
-    this._renderMovie();
+    this._moviesModel.addObserver(this._handleMoviesModelEvent);
   }
 
   _handleModeChange() {
@@ -58,6 +60,7 @@ export default class Movie {
     let mainListClass = '';
 
     if (this._getMovies().length > 0) {
+      this._getSortedFilms();
       this._renderMostCommentedFilmsList();
       this._renderTopFilmsList();
 
@@ -100,17 +103,16 @@ export default class Movie {
     this._mainFilmListComponent = new CatalogListView(mainListTitle, '', mainListClass);
     render(this._catalogFilmsNode, this._mainFilmListComponent, RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
-    this._renderCards(0, MAIN_LIST_SIZE, true);
+    this._renderCards(0, this._getMovies(), MAIN_LIST_SIZE, true);
   }
 
   _renderCard(filmsListContainerNode, film) {
-    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleViewAction, this._handleModeChange);
+    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleViewAction, this._handleModeChange, this._api);
     cardPresenter.init(film);
     this._filmPresenter.set(film.id, cardPresenter);
   }
 
-  _renderCards(from, listSize, isMainList = false) {
-    const films = this._getMovies();
+  _renderCards(from, films, listSize, isMainList = false) {
     const filmsListContainerNode = this._filmsListNode.querySelector('.films-list .films-list__container');
     const to = Math.min(films.length - from, listSize);
     const filmsArray = films.slice(from, to + from);
@@ -128,7 +130,6 @@ export default class Movie {
 
   _handleShowMorButton() {
     this._renderCards(this._shownFilmsCount, this._getMovies(), MAIN_LIST_SIZE);
-
     if (!(this._getMovies().length === this._shownFilmsCount)) {
       remove(this._showMoreButtonComponent);
       this._showMoreButtonNode = null;
@@ -147,7 +148,6 @@ export default class Movie {
   }
 
   _handleViewAction(actionType, updateType, update) {
-    console.log(actionType, updateType, update);
     switch (actionType) {
       case UserAction.UPDATE_MOVIE:
         this._moviesModel.updateMovie(updateType, update);
@@ -159,34 +159,19 @@ export default class Movie {
         this._moviesModel.deleteMovie(updateType, update);
         break;
     }
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
   }
 
-  _handleModelEvent(updateType, data) {
-    console.log(updateType, data);
-
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
+  _handleMoviesModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this._filmPresenter.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда задача ушла в архив)
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (например, при переключении фильтра)
         break;
       case UpdateType.INIT:
-        console.log('INIT');
         this._isLoading = false;
-        remove(this._loadingFilmsComponent);
         this._renderMovie();
         break;
     }

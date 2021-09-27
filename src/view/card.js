@@ -5,7 +5,7 @@ const MAX_DESCRIPTION_LENGTH = 140;
 
 const cardTemplate = (film) => {
   const {comments, title, totalRating, date, runtime, genres, poster, description, watchlist, alreadyWatched, favorite} = film;
-  const dateFullYear = date.getFullYear();
+  const dateFullYear = date;
   const duration = `${Math.floor(runtime/60)}h ${runtime%60}m`;
   const getCardDescription = (cardDescription) => {
     let string = cardDescription;

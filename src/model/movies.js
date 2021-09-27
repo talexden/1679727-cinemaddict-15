@@ -71,7 +71,7 @@ export default class Movies extends AbstractObserver {
         date: movie['film_info']['release']['date'],
         country: movie['film_info']['release']['country'],
         runtime: movie['film_info']['runtime'],
-        genres: movie['film_info']['genres'],
+        genres: movie['film_info']['genre'],
         description: movie['film_info']['description'],
         watchlist: movie['user_details']['watchlist'],
         alreadyWatched: movie['user_details']['already_watched'],
@@ -80,7 +80,6 @@ export default class Movies extends AbstractObserver {
       },
     );
 
-    // Ненужные ключи мы удаляем
     delete adaptedMovie['film_info']['title'];
     delete adaptedMovie['film_info']['alternative_title'];
     delete adaptedMovie['film_info']['total_rating'];
@@ -133,7 +132,6 @@ export default class Movies extends AbstractObserver {
       },
     );
 
-    // Ненужные ключи мы удаляем
     delete adaptedMovie.title;
     delete adaptedMovie.alternativeTitle;
     delete adaptedMovie.totalRating;

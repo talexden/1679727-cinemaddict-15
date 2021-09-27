@@ -116,7 +116,6 @@ export default class PopupFilmComments extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
-    // this._setPresenterHandlers();
   }
 
   _setPresenterHandlers() {

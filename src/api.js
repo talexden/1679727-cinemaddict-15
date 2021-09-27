@@ -1,3 +1,5 @@
+import MoviesModel from './model/movies.js';
+
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
@@ -16,7 +18,9 @@ export default class Api {
 
   getMovies() {
     return this._request({url: 'movies'})
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then((movies) => movies.map(MoviesModel.adaptToClient));
+
   }
 
   updateFilm(movie) {
@@ -42,7 +46,7 @@ export default class Api {
       headers: new Headers({'Content-Type': 'application/json'}),
     })
       .then(Api.toJSON);
-  };
+  }
 
   removeMovieComment(movie, comment) {
     return this._request({

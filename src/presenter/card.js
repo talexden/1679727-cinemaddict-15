@@ -13,7 +13,8 @@ const Mode = {
   OPENED: 'OPENED',
 };
 export default class Card {
-  constructor(filmCatalogNode, changeData, changeMode) {
+  constructor(filmCatalogNode, changeData, changeMode, api) {
+    this._api = api;
     this._filmCatalogNode = filmCatalogNode;
     this._changeData = changeData;
     this._changeMode = changeMode;
@@ -34,13 +35,13 @@ export default class Card {
     this._handleWachlistClick = this._handleWachlistClick.bind(this);
     this._handleWachedClick = this._handleWachedClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
-
+    this._handleCommentsModelEvent = this._handleCommentsModelEvent.bind(this);
   }
 
   init(film) {
+    this._commentsModel.addObserver(this._handleCommentsModelEvent);
     const filmComments = [];
     film.comments.map((comment) => filmComments.push(this._mockComments[comment]));
-    this._commentsModel.setComments(UpdateType.INIT, filmComments);
 
     this._film = film;
     const prevCardComponent = this._cardComponent;
@@ -66,6 +67,14 @@ export default class Card {
     remove(this._cardComponent);
     remove(this._popupFilmDetailsViewComponent);
     remove(this._popupFilmCommentsViewComponent);
+  }
+
+  _openPopup() {
+    this._api
+      .getComments(this._film)
+      .then((commentsData) => {
+        this._commentsModel.setComments(UpdateType.INIT, commentsData);
+      });
   }
 
   _renderPopup() {
@@ -108,7 +117,7 @@ export default class Card {
   }
 
   _onCardClickEvent() {
-    this._renderPopup();
+    this._openPopup();
   }
 
   _handleRemovePopup() {
@@ -164,6 +173,14 @@ export default class Card {
         },
       ),
     );
+  }
+
+  _handleCommentsModelEvent(updateType) {
+    switch (updateType) {
+      case UpdateType.INIT:
+        this._renderPopup();
+        break;
+    }
   }
 }
 

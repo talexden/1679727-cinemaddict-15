@@ -27,29 +27,13 @@ const comments = getComments();
 
 const api = new Api(END_POINT, AUTHORIZATION);
 
+const moviesModel = new MoviesModel();
+
 api
   .getMovies()
   .then((moviesData) => {
-    console.log(moviesData);
-    // Есть проблема: cтруктура объекта похожа, но некоторые ключи называются иначе,
-    // а ещё на сервере используется snake_case, а у нас camelCase.
-    // Можно, конечно, переписать часть нашего клиентского приложения, но зачем?
-    // Есть вариант получше - паттерн "Адаптер"
+    moviesModel.setMovies(UpdateType.INIT, moviesData);
   });
-
-
-api
-  .getComments(movies[7])
-  .then((commentsData) => {
-    console.log(commentsData);
-    // Есть проблема: cтруктура объекта похожа, но некоторые ключи называются иначе,
-    // а ещё на сервере используется snake_case, а у нас camelCase.
-    // Можно, конечно, переписать часть нашего клиентского приложения, но зачем?
-    // Есть вариант получше - паттерн "Адаптер"
-  });
-
-const moviesModel = new MoviesModel();
-moviesModel.setMovies(UpdateType.INIT, movies);
 
 const commentsModel = new CommentsModel();
 commentsModel.setComments(UpdateType.INIT, comments);
@@ -64,7 +48,7 @@ render(mainNode, new CatalogSorting(), RenderPosition.BEFOREEND);
 render(mainNode, new Catalog(), RenderPosition.BEFOREEND);
 
 const catalogFilmsNode = mainNode.querySelector('.films');
-const moviePresenter = new MoviePresenter(catalogFilmsNode, moviesModel);
+const moviePresenter = new MoviePresenter(catalogFilmsNode, moviesModel, api);
 moviePresenter.init(movies, getComments());
 
 const footerNode = document.querySelector('.footer');
