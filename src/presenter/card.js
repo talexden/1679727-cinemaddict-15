@@ -4,24 +4,26 @@ import PopupTemplateView from '../view/popup.js';
 import PopupFilmDetailsView from '../view/popup-film-details.js';
 import PopupFilmCommentsView from '../view/popup-film-comments.js';
 import {remove, render, RenderPosition, replace} from '../utils/render.js';
+import CommentsModel from '../model/comments.js';
+import {getComments} from '../mock/create-comments';
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
-  CLOSED: 'CLOSED',
+  DEFAULT: 'DEFAULT',
   OPENED: 'OPENED',
 };
-
 export default class Card {
-  constructor(filmCatalogNode, changeData, commentsData, changeMode) {
+  constructor(filmCatalogNode, changeData, changeMode) {
     this._filmCatalogNode = filmCatalogNode;
     this._changeData = changeData;
-    this._mockComments = commentsData;
     this._changeMode = changeMode;
     this._cardComponent = null;
     this._popupFilmDetailsViewComponent = null;
     this._popupFilmCommentsViewComponent = null;
-    this._popupMode = Mode.CLOSED;
+    this._popupMode = Mode.DEFAULT;
     this._popupComponent = null;
-
+    this._commentsModel = new CommentsModel();
+    this._mockComments = getComments();
 
     this._bodyNode = document.querySelector('body');
 
@@ -36,9 +38,11 @@ export default class Card {
   }
 
   init(film) {
+    const filmComments = [];
+    film.comments.map((comment) => filmComments.push(this._mockComments[comment]));
+    this._commentsModel.setComments(UpdateType.INIT, filmComments);
+
     this._film = film;
-    this._comments = [];
-    this._film.comments.forEach((commentId) => this._comments.push(this._mockComments[commentId]));
     const prevCardComponent = this._cardComponent;
 
     this._cardComponent = new CardsView(this._film);
@@ -53,7 +57,6 @@ export default class Card {
       return;
     } else {
       replace(this._cardComponent, prevCardComponent);
-      this._renderPopup();
     }
 
     remove(prevCardComponent);
@@ -76,7 +79,7 @@ export default class Card {
 
     this._popupComponent = new PopupTemplateView();
     this._popupFilmDetailsViewComponent =  new PopupFilmDetailsView(this._film );
-    this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(this._comments);
+    this._popupFilmCommentsViewComponent = new PopupFilmCommentsView(this._getComments());
 
     render(this._bodyNode, this._popupComponent, RenderPosition.BEFOREEND);
     const filmDetailsInnerNode = document.querySelector('.film-details__inner');
@@ -95,9 +98,13 @@ export default class Card {
   }
 
   resetView() {
-    if (this._popupMode !== Mode.CLOSED) {
+    if (this._popupMode !== Mode.DEFAULT) {
       this._handleRemovePopup();
     }
+  }
+
+  _getComments() {
+    return this._commentsModel.getComments();
   }
 
   _onCardClickEvent() {
@@ -108,7 +115,7 @@ export default class Card {
     remove(this._popupComponent);
     this._bodyNode.classList.remove('hide-overflow');
     window.removeEventListener('keydown', this._onEscPopup);
-    this._popupMode = Mode.CLOSED;
+    this._popupMode = Mode.DEFAULT;
   }
 
   _onEscPopup(evt) {
@@ -119,6 +126,8 @@ export default class Card {
 
   _handleFavoriteClick() {
     this._changeData(
+      UserAction.UPDATE_MOVIE,
+      UpdateType.PATCH,
       Object.assign(
         {},
         this._film,
@@ -131,6 +140,8 @@ export default class Card {
 
   _handleWachlistClick() {
     this._changeData(
+      UserAction.UPDATE_MOVIE,
+      UpdateType.PATCH,
       Object.assign(
         {},
         this._film,
@@ -143,6 +154,8 @@ export default class Card {
 
   _handleWachedClick() {
     this._changeData(
+      UserAction.UPDATE_MOVIE,
+      UpdateType.PATCH,
       Object.assign(
         {},
         this._film,

@@ -5,10 +5,11 @@ import CatalogListContainerView from '../view/catalog-list-container.js';
 import ShowMoreButtonView from '../view/show-more-button.js';
 import CardPresenter from './card.js';
 import {remove, render, RenderPosition} from '../utils/render.js';
-import {updateItem} from '../utils/common.js';
+import {UserAction, UpdateType} from '../const.js';
 
 const MAIN_LIST_TITLE = 'All movies. Upcoming';
 const MAIN_LIST_TITLE_NO_MOVIES = 'There are no movies in our database';
+const MAIN_LIST_TITLE_LOAIDNG = 'Loading...';
 const MAIN_LIST_SIZE = 5;
 const TOP_LIST_TITLE = 'Top rated';
 const MOST_COMMENTED_LIST_TITLE = 'Most commented';
@@ -21,33 +22,42 @@ export default class Movie {
     this._mostCommentedFilms = null;
     this._showMoreButtonComponent = new ShowMoreButtonView();
     this._filmPresenter = new Map();
+    this._isLoading = true;
 
     this._catalogFilmsNode = catalogFilmsNode;
     this._filmsListNode = null;
 
     this._shownFilmsCount = 0;
 
-    this._handleCardChange = this._handleCardChange.bind(this);
     this._handleShowMorButton = this._handleShowMorButton.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
   }
 
-  init(films, comments) {
-    this._currentFilms = films.slice();
-    this._currentComments = comments.slice();
-    this._getSortedFilms();
+  init() {
     this._renderMovie();
   }
 
-  _handleModeChange(flag) {
-    this._filmPresenter.forEach((presenter) => presenter.resetView(flag));
+  _handleModeChange() {
+    this._filmPresenter.forEach((presenter) => presenter.resetView());
+  }
+
+  _renderLoading() {
+    this._loadingFilmsComponent = new CatalogListView(MAIN_LIST_TITLE_LOAIDNG);
+    render(this._catalogFilmsNode, this._loadingFilmsComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderMovie() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     let mainListTitle = MAIN_LIST_TITLE_NO_MOVIES;
     let mainListClass = '';
 
-    if (this._currentFilms.length > 0) {
+    if (this._getMovies().length > 0) {
       this._renderMostCommentedFilmsList();
       this._renderTopFilmsList();
 
@@ -57,14 +67,14 @@ export default class Movie {
 
     this._renderMainFilmsList(mainListTitle, mainListClass);
 
-    if (this._currentFilms.length > MAIN_LIST_SIZE) {
+    if (this._getMovies().length > MAIN_LIST_SIZE) {
       this._renderShowMorButton();
     }
   }
 
   _getSortedFilms() {
-    this._ratingFilms = getRatingSort(this._currentFilms);
-    this._mostCommentedFilms = getMostCommentedSort(this._currentFilms);
+    this._ratingFilms = getRatingSort(this._getMovies());
+    this._mostCommentedFilms = getMostCommentedSort(this._getMovies());
   }
 
   _renderFilmListContainer() {
@@ -73,35 +83,39 @@ export default class Movie {
   }
 
   _renderMostCommentedFilmsList() {
-    render(this._catalogFilmsNode, new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra'), RenderPosition.AFTERBEGIN);
+    this._mostCommentedFilmListComponent = new CatalogListView(MOST_COMMENTED_LIST_TITLE, 'films-list--extra');
+    render(this._catalogFilmsNode, this._mostCommentedFilmListComponent, RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
     this._renderCards(0, this._mostCommentedFilms, EXTRA_LIST_SIZE);
   }
 
   _renderTopFilmsList() {
-    render(this._catalogFilmsNode, new CatalogListView(TOP_LIST_TITLE, 'films-list--extra'), RenderPosition.AFTERBEGIN);
+    this._topFilmListComponent =  new CatalogListView(TOP_LIST_TITLE, 'films-list--extra');
+    render(this._catalogFilmsNode, this._topFilmListComponent, RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
     this._renderCards(0, this._ratingFilms, EXTRA_LIST_SIZE);
   }
 
   _renderMainFilmsList(mainListTitle, mainListClass) {
-    render(this._catalogFilmsNode, new CatalogListView(mainListTitle, '', mainListClass), RenderPosition.AFTERBEGIN);
+    this._mainFilmListComponent = new CatalogListView(mainListTitle, '', mainListClass);
+    render(this._catalogFilmsNode, this._mainFilmListComponent, RenderPosition.AFTERBEGIN);
     this._renderFilmListContainer();
-    this._renderCards(0, this._currentFilms, MAIN_LIST_SIZE, true);
+    this._renderCards(0, MAIN_LIST_SIZE, true);
   }
 
   _renderCard(filmsListContainerNode, film) {
-    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleCardChange, this._currentComments, this._handleModeChange);
+    const cardPresenter = new CardPresenter(filmsListContainerNode, this._handleViewAction, this._handleModeChange);
     cardPresenter.init(film);
     this._filmPresenter.set(film.id, cardPresenter);
   }
 
-  _renderCards(from, filmsData, listSize, isMainListCard = false) {
+  _renderCards(from, listSize, isMainList = false) {
+    const films = this._getMovies();
     const filmsListContainerNode = this._filmsListNode.querySelector('.films-list .films-list__container');
-    const to = Math.min(filmsData.length - from, listSize);
-    const filmsArray = filmsData.slice(from, to + from);
-    filmsArray.forEach((filmCard) => this._renderCard(filmsListContainerNode, filmCard));
-    if (isMainListCard) {
+    const to = Math.min(films.length - from, listSize);
+    const filmsArray = films.slice(from, to + from);
+    filmsArray.forEach((film) => this._renderCard(filmsListContainerNode, film));
+    if (isMainList) {
       this._shownFilmsCount += to;
     }
   }
@@ -113,9 +127,9 @@ export default class Movie {
   }
 
   _handleShowMorButton() {
-    this._renderCards(this._shownFilmsCount, this._currentFilms, MAIN_LIST_SIZE);
+    this._renderCards(this._shownFilmsCount, this._getMovies(), MAIN_LIST_SIZE);
 
-    if (!(this._currentFilms.length === this._shownFilmsCount)) {
+    if (!(this._getMovies().length === this._shownFilmsCount)) {
       remove(this._showMoreButtonComponent);
       this._showMoreButtonNode = null;
     }
@@ -132,8 +146,49 @@ export default class Movie {
     remove(this._showMoreButtonComponent);
   }
 
-  _handleCardChange(updatedFilm) {
-    this._currentFilms = updateItem(this._currentFilms, updatedFilm);
-    this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
+  _handleViewAction(actionType, updateType, update) {
+    console.log(actionType, updateType, update);
+    switch (actionType) {
+      case UserAction.UPDATE_MOVIE:
+        this._moviesModel.updateMovie(updateType, update);
+        break;
+      case UserAction.ADD_MOVIE:
+        this._moviesModel.addMovie(updateType, update);
+        break;
+      case UserAction.DELETE_MOVIE:
+        this._moviesModel.deleteMovie(updateType, update);
+        break;
+    }
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  }
+
+  _handleModelEvent(updateType, data) {
+    console.log(updateType, data);
+
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда задача ушла в архив)
+    // - обновить всю доску (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        // - обновить часть списка (например, когда поменялось описание)
+        this._filmPresenter.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        // - обновить список (например, когда задача ушла в архив)
+        break;
+      case UpdateType.MAJOR:
+        // - обновить всю доску (например, при переключении фильтра)
+        break;
+      case UpdateType.INIT:
+        console.log('INIT');
+        this._isLoading = false;
+        remove(this._loadingFilmsComponent);
+        this._renderMovie();
+        break;
+    }
   }
 }

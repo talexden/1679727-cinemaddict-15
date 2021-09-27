@@ -10,7 +10,8 @@ import MoviesModel from './model/movies.js';
 import CommentsModel from './model/comments.js';
 import Api from './api.js';
 import {getAlphaNumericRandom, getRandomInt} from './mock/utils.js';
-import {render, RenderPosition} from './utils/render';
+import {render, RenderPosition} from './utils/render.js';
+import {UpdateType} from './const.js';
 
 const FILMS_CATALOG_SIZE = 8;
 
@@ -48,10 +49,10 @@ api
   });
 
 const moviesModel = new MoviesModel();
-moviesModel.setMovies(movies);
+moviesModel.setMovies(UpdateType.INIT, movies);
 
 const commentsModel = new CommentsModel();
-commentsModel.setComments(comments);
+commentsModel.setComments(UpdateType.INIT, comments);
 
 
 render(mainNode, new Navigation(movies), RenderPosition.BEFOREEND);
