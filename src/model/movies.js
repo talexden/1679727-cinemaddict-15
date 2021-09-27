@@ -1,16 +1,16 @@
 import AbstractObserver from '../utils/abstract-observer.js';
 
-export default class Data extends AbstractObserver {
+export default class Movies extends AbstractObserver {
   constructor() {
     super();
-    this._data = [];
+    this._movies = [];
   }
 
-  setData(data) {
-    this._data = data.slice();
+  setMovies(movies) {
+    this._movies = movies.slice();
   }
 
-  getData() {
+  getMovies() {
     return this._data;
   }
 

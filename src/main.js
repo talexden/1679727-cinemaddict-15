@@ -6,7 +6,8 @@ import Navigation from './view/navigation.js';
 import {createFilmCards} from './mock/create-film-cards';
 import MoviePresenter from './presenter/movie';
 import {getComments} from './mock/create-comments';
-import DataModel from './model/data.js';
+import MoviesModel from './model/movies.js';
+import CommentsModel from './model/comments.js';
 import Api from './api.js';
 import {getAlphaNumericRandom, getRandomInt} from './mock/utils.js';
 import {render, RenderPosition} from './utils/render';
@@ -21,15 +22,14 @@ const END_POINT = 'https://15.ecmascript.pages.academy/cinemaddict';
 const mainNode = document.querySelector('.main');
 
 const movies = createFilmCards(FILMS_CATALOG_SIZE);
-let films = {};
+const comments = getComments();
 
 const api = new Api(END_POINT, AUTHORIZATION);
 
 api
   .getMovies()
   .then((moviesData) => {
-    films = moviesData;
-    console.log(films);
+    console.log(moviesData);
     // Есть проблема: cтруктура объекта похожа, но некоторые ключи называются иначе,
     // а ещё на сервере используется snake_case, а у нас camelCase.
     // Можно, конечно, переписать часть нашего клиентского приложения, но зачем?
@@ -39,19 +39,19 @@ api
 
 api
   .getComments(movies[7])
-  .then((comments) => {
-    console.log(comments);
+  .then((commentsData) => {
+    console.log(commentsData);
     // Есть проблема: cтруктура объекта похожа, но некоторые ключи называются иначе,
     // а ещё на сервере используется snake_case, а у нас camelCase.
     // Можно, конечно, переписать часть нашего клиентского приложения, но зачем?
     // Есть вариант получше - паттерн "Адаптер"
   });
 
-const moviesModel = new DataModel();
-moviesModel.setData(movies);
+const moviesModel = new MoviesModel();
+moviesModel.setMovies(movies);
 
-const commentsModel = new DataModel();
-commentsModel.setData(getComments());
+const commentsModel = new CommentsModel();
+commentsModel.setComments(comments);
 
 
 render(mainNode, new Navigation(movies), RenderPosition.BEFOREEND);

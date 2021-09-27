@@ -1,6 +1,8 @@
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
 import {isEnterEvent} from '../utils/common.js';
 import dayjs from 'dayjs';
+
+const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
 
 export const commentTemplate = (comments) => {
@@ -23,11 +25,23 @@ export const commentTemplate = (comments) => {
   );
 };
 
+const createInputEmojiTamplate = (emotion, checkedEmotion) => `<input class="film-details__emoji-item visually-hidden"
+name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}"
+${checkedEmotion === emotion ? 'checked' : ''}>
+  <label class="film-details__emoji-label" for="emoji-${emotion}">
+    <img src="./images/emoji/${emotion}.png" alt="emoji" width="30" height="30">
+      </label>`;
+
+const createEmojiListTemplate = (emotions, checkedEmotion) => emotions
+  .map((emotion) => createInputEmojiTamplate(emotion, checkedEmotion))
+  .join('');
 
 const joinCommentsTemplate = (comments) => comments.map((comment) => commentTemplate(comment)).join('');
 
-const popupFilmCommentsTemplate = (comments) => (
-  `<div class="film-details__bottom-container">
+const popupFilmCommentsTemplate = (data, comments) => {
+  const {checkedEmotion, textComment} = data;
+  return (
+    `<div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
       <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
@@ -35,58 +49,46 @@ const popupFilmCommentsTemplate = (comments) => (
 
       <div class="film-details__new-comment">
         <div class="film-details__add-emoji-label">
-          <img src="images/emoji/smile.png" width="55" height="55" alt="emoji-smile">
+          <img src="images/emoji/${checkedEmotion}.png" width="55" height="55" alt="emoji-smile">
         </div>
 
         <label class="film-details__comment-label">
-          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${textComment ? textComment : ''}</textarea>
         </label>
 
-        <div class="film-details__emoji-list">
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" checked>
-          <label class="film-details__emoji-label" for="emoji-smile">
-            <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
-          </label>
-
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
-          <label class="film-details__emoji-label" for="emoji-sleeping">
-            <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
-          </label>
-
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
-          <label class="film-details__emoji-label" for="emoji-puke">
-            <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
-          </label>
-
-          <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
-          <label class="film-details__emoji-label" for="emoji-angry">
-            <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
-          </label>
-        </div>
+        <div class="film-details__emoji-list">${createEmojiListTemplate(EMOTIONS, checkedEmotion)}</div>
       </div>
     </section>
   </div>`
-);
+  );
+};
 
 
-export default class PopupFilmComments extends AbstractView {
+export default class PopupFilmComments extends SmartView {
   constructor(comments) {
     super();
     this._comments = comments;
     this._data = PopupFilmComments.parseCommentsToData(comments);
     this._commentSubmitHandler = this._commentSubmitHandler.bind(this);
+    this._setTextareaHandler = this._setTextareaHandler.bind(this);
+    this._emotionInputHandler =this._emotionInputHandler.bind(this);
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return popupFilmCommentsTemplate(this._comments);
+    return popupFilmCommentsTemplate(this._data, this._comments);
   }
 
   _commentSubmitHandler(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
     if (isEnterEvent(evt)) {
-      this._callback.commentSubmit(PopupFilmComments.parseDataToComments(this._data));
+      evt.preventDefault();
+
+      const textArea = this.getElement().querySelector('.film-details__comment-input');
+      const emojiInputs = this.getElement().querySelectorAll('.film-details__emoji-item');
+      this._callback.commentSubmit(this._data, textArea, emojiInputs);
+      document.removeEventListener('keydown', this._commentSubmitHandler);
     }
+
   }
 
   setCommentSubmitHandler(callback) {
@@ -94,9 +96,41 @@ export default class PopupFilmComments extends AbstractView {
     this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', this._commentSubmitHandler);
   }
 
-  setEmojytHandler(callback) {
-    this._callback.commentSubmit = callback;
-    this.getElement().querySelector('.film-details__comment-input').addEventListener('keydown', this._commentSubmitHandler);
+  _setTextareaHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      textComment: (evt.target.value),
+    }, true);
+  }
+
+  _emotionInputHandler(evt) {
+    if (evt.target.tagName !== 'INPUT') {
+      return;
+    }
+    evt.preventDefault();
+    this.updateData({
+      checkedEmotion: evt.target.value,
+    });
+  }
+
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    // this._setPresenterHandlers();
+  }
+
+  _setPresenterHandlers() {
+    this.setDeleteCommentClickHandler(this._callback.deleteClick);
+    this.setSubmitCommentHandler(this._callback.commentSubmit);
+  }
+
+  _setInnerHandlers() {
+    if (this.getElement().querySelector('.film-details__comment-input')) {
+      this.getElement()
+        .querySelector('.film-details__comment-input').addEventListener('input', this._setTextareaHandler);
+      this.getElement()
+        .querySelector('.film-details__emoji-list').addEventListener('click', this._emotionInputHandler);
+    }
   }
 
   static parseCommentsToData(comments) {
@@ -104,27 +138,10 @@ export default class PopupFilmComments extends AbstractView {
       {},
       comments,
       {
-        currentEmojy: '',
-        currentComments: '',
+        textComment: '',
+        checkedEmotion : 'smile',
       },
     );
-  }
-
-  static parseDataToComments(data) {
-    data = Object.assign({}, data);
-
-    if (!data.currentEmojy) {
-      data.emotion = '';
-    }
-
-    if (!data.currentComments) {
-      data.comment = '';
-    }
-
-    delete data.currentEmojy;
-    delete data.currentComments;
-
-    return data;
   }
 
 }
